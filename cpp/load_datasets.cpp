@@ -1,6 +1,6 @@
 #include "header.h"
 
-// convert a line of numbers into a presentation (word)
+// converts a string of numbers (separated by spaces) into a presentation (deque<int>)
 deque<int> convert(string line){
     deque<int> a;
     
@@ -27,6 +27,7 @@ deque<int> convert(string line){
     return a;
 }
 
+// reads presentations in format "relator1 \n relator2" (relators are separated by spaces)
 vector<node> load_presentations(string file_path){
     ifstream stream(file_path.c_str());
     
@@ -55,6 +56,7 @@ vector<node> load_presentations(string file_path){
     return presentations;
 }
 
+// reads presentations of Miller-Schupp series in format "[relator1, 0s padding, relator2, 0s padding]" (relators are separated by commas)
 vector<node> load_presentations_MS(string file_path){
     ifstream stream(file_path.c_str());
     
@@ -105,6 +107,7 @@ vector<node> load_presentations_MS(string file_path){
     return presentations;
 }
 
+// returns file path where generated presentations (saved by generate_all function) are stored
 string get_file_path(int max_len){
     return "/Users/kseniia/Desktop/programming/Projects/acc/cpp/datasets/dataset_len" + to_string(max_len) + ".txt";
 }

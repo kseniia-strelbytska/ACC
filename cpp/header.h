@@ -21,30 +21,74 @@
 using namespace std;
 typedef long long ll;
 typedef long double ld;
+
+/*
+ Representation format:
+ 
+ Each relator is represented as a deque of -2/-1/1/2
+ Each node is represented as a pair of two deques
+ 
+ Example:
+ deque<int>d = {-1, -2, 1};
+ node a = {{-1, -2, 1}, {2, -1}};
+ */
+
 typedef pair<deque<int>, deque<int>> node;
 typedef pair<pair<int, int>, node> node_info;
 
-// support.cpp
+// ----------support.cpp----------
+
+// prints a node
 void print(node a);
+
+// prints a relator
 void print(deque<int> a);
+
+// returns product of {a} and {b}, simplified
 deque<int> concat(deque<int> a, deque<int> b);
+
+// returns simplified {a} (with identity terms canceled out)
 void normalise(deque<int> &a);
+
+// returns a node if move {move} is performed on {a}
 node ACMove(node a, int move);
+
+// prints nodes along the path from start
 void show_path(node start, vector<int> path);
 
-// generate_datasets.cpp
+// ----------generate_datasets.cpp----------
+
+// a recursive function to generate presentations
 void generate_p(ll pos, ll val, ll max_len);
+
+// generates all presentations of length {max_len} (in simplified form)
+// stores result in global set {presentations}
 void initialise_presentations(ll max_len);
+
+// generates and saves to separate files all presentations of lengths 2 to 9
 void generate_all();
 
-// greedy.cpp
+// ----------greedy.cpp----------
+// returns a pair {True/False whether trivialisation was found, path if True else {}}
 pair<bool, vector<int>> greedy_search(node start, int max_nodes, int max_relator_length);
 
-// load_datasets.cpp
+// ----------load_datasets.cpp----------
+
+// converts a string of numbers (separated by spaces) into a presentation (deque<int>)
 deque<int> convert(string line);
+
+// reads generated presentations
 vector<node> load_presentations(string file_path);
+
+// reads presentations of Miller-Schupp series
 vector<node> load_presentations_MS(string file_path);
+
+// returns file path where generated presentations (saved by generate_all function) are stored
 string get_file_path(int max_len);
 
-// evaluate.cpp
+// ----------evaluate.cpp----------
+
+// runs greedy search on every presentation from {presentations}
+// saves trivialised presentations and their paths
+// prints the number of solved out of total
 void evaluate(vector<node> presentations, string output_pr, string output_pa, int max_nodes, int max_relator_length);

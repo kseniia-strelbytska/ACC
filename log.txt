@@ -1,0 +1,130 @@
+Heuristics: (1e4) 
+
+	length of presentation / half of length of presentation
+	Total: 258. Matching: 149. A* solved: 0. Greedy solved: 109
+	A* solved total: 149. Greedy solved total: 258
+
+	the number of y’s in presentation -> higher result. sum([1 if abs(i) == 2 else 0 for i in store])
+	Total: 258. Matching: 169. A* solved: 0. Greedy solved: 89
+	A* solved total: 169. Greedy solved total: 258
+
+	dijkstra
+	Total: 258. Matching: 0. A* solved: 0. Greedy solved: 258
+	A* solved total: 0. Greedy solved total: 258
+
+	h = sum([2 if i < 0 else min(i, 1) for i in store]) # 2 if the power is negative, 1 if the power is positive. Works super fast compared to previous versions.
+	Total: 258. Matching: 175. A* solved: 0. Greedy solved: 83
+	A* solved total: 175. Greedy solved total: 258
+
+	 h = sum([1 if i < 0 else min(i, 2) for i in store])
+	Total: 258. Matching: 176. A* solved: 0. Greedy solved: 82
+	A* solved total: 176. Greedy solved total: 258
+
+	            h = 0.3 * sum([1 if abs(i) == 2 else 0.2 for i in store]) + 0.7 * sum([1 if i < 0 else min(i, 2) for i in store])
+	Total: 258. Matching: 163. A* solved: 0. Greedy solved: 95
+A* solved total: 163. Greedy solved total: 258
+	
+	h = sum(lengths)
+	Total: 258. Matching: 149. A* solved: 0. Greedy solved: 109
+	A* solved total: 149. Greedy solved total: 258
+
+
+
+
+https://ieeexplore.ieee.org/document/10977585/figures#figures : upon request A star with nns
+
+https://en.wikipedia.org/wiki/Pancake_sorting
+
+chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://proceedings.neurips.cc/paper_files/paper/2003/file/ee8fe9093fbbb687bef15a38facc44d2-Paper.pdf (
+ Likhachebv, Maxim; Gordon, Geoff; Thrun, Sebastian. ARA*: Anytime A* with Provable Bounds on Sub-Optimality (PDF) (Technical report). School of Computer Science, Carnegie Mellon University. Retrieved 24 April 2018.)
+We can use ARA* to improve on paths and find better solutions (mroe of them, on a small scale we can use a star/dijkstra) -- maybe they contain useful supermoves? But we need to be able to reach goal on the 1st iteration, h(n) must still be admissible. 
+
+make hypothesis about possible heuristics and properties of ACC paths. 
+     Can we try for each represenatation, to go down 3 orders and take a minimum value of their heuristics, and say 2 + that iss our best heuristic?  
+What properties did the Paper state?
+
+chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://arxiv.org/pdf/2204.08938 LEARNING HEURISTICS FOR A*
+used Encode-process (GN) - decode structure to learn heuristic (note: redefined to the best node to choose on the path)
+
+chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://arxiv.org/pdf/1806.01203 Relational inductive bias for physical construction in humans and machines Jessica B. Hamrick
+They used GNNs with RL to allow 'message exchange' between nodes and allow them to reason.
+
+Good to do: GNNs https://distill.pub/2021/gnn-intro/ could be used in A star pathfinding? But how many nodes do we need to encode, we don't know? 
+
+The ratio of frequency of y ±1 to the frequency of x ±1 is higher in the GS-unsolved dataset. This is likely because the GS-unsolved presentations have larger n, and larger n corresponds to a higher number of occurrence of y ±1 in the Miller–Schupp presentation. Interestingly, this effect remains in the dataset even after applying thousands of AC-moves to the original presentations.
+
+Trained models cluster together GS-solved and GS-unsolved presentations indicating the possibility of a difference in the linguistic structure of the two sets of presentations.
+
+(They trained a transformer to predict the next token of the presentation. The last embedding generated contains information about the whole presentation. They plotted these last embeddings onto a 2D plane (using t-SNE dimension reduction) and found that only with a trained transformer do solved vs unsolved by GS presentations cluster together. )
+
+We can consider neighbourhood sizes (eg of order 5) — if the size is one of 6, it’s likely a hard instance to solve. + consider homology and barcodes (???)
+
+What properties to consider? Neighbourhood size, homology (?)
+Can we learn the heuristic or is that just RL? Encode-process-decode structure to learn heuristic. 
+
+What variants of A* to consider.  
+What is the first goal to achieve? 
+
+10/09/25 
+Things to do:
+Implement fast c++ version of the greedy search (and understand fully how it works)
+Should use randomly generated test cases (to avoid Simson’s when solving just for a specific family of groups, because techniques found there might not be efficient for the general case) and try to find hard instances — maybe by path length — good to learn from them??
+Branching factor: how much should you branch vs explore deeply — this means how many supernovas should you actually add? Denser graphs with more moves are better to find an heuristic on it. 
+
+Don’t know what heuristic: hash function? 
+
+What they did in the knot theory project:
+	They wrote it in C++
+	Clever heuristic: # of inversion describes the hardness, because the closer adjacent elements are, the easier it is to swap them. 
+	They made a very good hash function. It is a semi-invariant; it can look at one braid and say which equivalence sub-class it belongs to. EG it might group as #3, #4, #5 belong to the same sub-group, but their equivalence class has tons more. But the whole class is split into sub-groups. And hash, calculated from the braid, describes that. But the problem is: how knowing the sub-level you understand which braid in that sub-level is actually the closest to the goal, i.e. which one should you iterate to? Or if not that, then how do you know how the sub-levels are linked together? 
+
+	Moves allowed: 
+	Markov, to move between equivalence classes,: relators (s1s2s1=s2s1s2; sisj=sjsi |i-j| >= 2) and conjugation (s1[…]s1^(-1))
+	Reidersmeister (same as ACC, but moves are proven to be valid)
+
+	Braids can represent knots and each braid is described by a braid word. If you connect in circles you get a link, and links form their own equivalence classes (those are the big ones in which sub-levels lie)
+	
+Nielsen moves are used because assuming the presentation is really trivial (all generators = identity), these moves move the presentation into an equivalent one. 
+
+Greedy.py limit the max length of the relator, so be careful to set 20+ as max. 
+
+Python version (20 max length, 1e5 max nodes explored, len=3 dataset): 
+Solved: 64/80
+64 80 0.8
+Time taken: 11m 38s [raw : 696.1941826660001]
+
+C++ version (20 max length)
+Solved: 64/80
+Time taken: 6m 52s
+
+Complexity: O(NlogN*moves*max_relator_length)  < 0.5e9, should work faster than 30s worst case.
+
+Current issue: deleting the whole priority queue & maps takes a lot of time. What if we re-use these partially, or at least Can we make “memoization”? I.e. after each greedy_search run we backtrack and mark all nodes reachable — by edges we already visited — as “trivial” (as we know there is a path from there to trivial). On the subsequent runs, each node remember if it’s been trivialised -> faster, but possible memory issues. Random shuffle presentations. 
+
+When should we stop exploring? If len of presentation=3 is it reasonable to explore all 1e5 nodes? 
+
+TO DO: check whether both versions (python & c++) explore the same set of nodes and in the same order (which they should) 
+ TO DO: (done) test c++ on Miller Schupp (just load the dataset into c++) 
+
+17/08/25: debug python saving to file & write c++ reading & spliting another format of input file. Run c++ and python comparison on al 1190 Miller-Schupp presentations. 
+
+TO DO: add comments
+TO DO: fix file paths 
+
+Visited condition
+Python: only checks if state_tup not in tree_nodes.
+C++: checks (!mp.count(to) || mp[to] < cost) before pushing. → This is effectively a Dijkstra-style check (only keep states with strictly better (length, depth)). → Python may revisit a node if reached with a different path length, C++ won’t. ⚠️ That can prune some paths Python would explore.
+Solved: 527/604 with python version (1e5, 20) 1h 23m 48s
+After 604, takes too long to find trivial (very sparse trivial presentations). How should we compare C++ & python? Just stop at 604.
+C++ Writing into a file takes ages.
+C++: Solved: 438/604 46m 24s (possibly because of that Visited Condition error above)
+Changed C++ from Dijkstra style (when one node can be added multiple times to one) -> under exploring is still an issue 
+
+18/09/25
+Think about measuring similarity to goal nodes: greedy will still be pushed towards shortest presentation lengths, and unless changed have low chance of hitting a newly trivialised node. How can we measure similarity to goal nodes? Common subsequences? 
+TO DO: check python implementation (what informations do the nodes store in the heap? When does ACMove cut off branching?) || check the set & order of nodes that cpp vs python explore (they should be the same)
+Insert moves: cyclic shift + product can allow moves of kind “insert r_i (or its inverse) into r_j into any position”. Rank all moves and select the ones that lead to the most cancelations. (Leetcode style problem?) Or Insert cyclic shifts into relator. -> Can be too greedy (selects moves too early and explored in the wrong field)
+M-transformations:
+Possible moves: conjugation and r_i -> r_i w, where w is built from product of other relators, their inverses and their conjugations 
+How can we rank the possible w (m-moves)? How can we find the top 1-3 that give the most cancelations -> reduce the presentation lengths the most? (Then we can use the same greedy search, just with better move selection)  
+TO DO: Github

@@ -12,6 +12,9 @@ string get_name(string file_path){
     return s;
 }
 
+// runs greedy search on every presentation from {presentations}
+// saves trivialised presentations and their paths
+// prints the number of solved out of total 
 void evaluate(vector<node> presentations, string output_pr, string output_pa, int max_nodes, int max_relator_length){
     string output_presentation = "/Users/kseniia/Desktop/programming/Projects/acc/results/" + output_pr;
     string output_path = "/Users/kseniia/Desktop/programming/Projects/acc/results/" + output_pa;

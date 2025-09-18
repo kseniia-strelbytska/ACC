@@ -1,4 +1,6 @@
 """
+https://arxiv.org/html/2408.15332v2
+
 Implementation of greedy search for AC graph.
 
 Example:

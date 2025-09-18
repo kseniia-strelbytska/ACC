@@ -1,5 +1,6 @@
 #include "header.h"
 
+// prints a node, relators are separated by '|'
 void print(node a){
     for(auto i: a.first)
         cout << i << ' ';
@@ -10,12 +11,14 @@ void print(node a){
     cout << endl;
 }
 
+// prints a relator
 void print(deque<int> a){
     for(auto i: a)
         cout << i << ' ';
     cout << endl;
 }
 
+// returns product of {a} and {b}, simplified
 deque<int> concat(deque<int> a, deque<int> b){
     // if two relators -- at the end of {a} and at the start of {b} --
     // simplify to identity, then cancel them
@@ -31,6 +34,7 @@ deque<int> concat(deque<int> a, deque<int> b){
     return a;
 }
 
+// returns simplified {a} (with identity terms canceled out)
 void normalise(deque<int> &a){
     // if two relators at the start of {a} simplify to identity, then cancel them
     while((int)(a.size()) >= 2 && abs(a[0]) == abs(a[1]) && a[0] != a[1]){
@@ -46,6 +50,8 @@ void normalise(deque<int> &a){
 }
 
 /*
+ 
+Moves:
 0. r_1 --> r_1 r_0
 1. r_0 --> r_0 r_1^{-1} -> r_0 -> r_0^{-1}
 2. r_1 --> r_1 r_0^{-1} -> r_1 -> r_1^{-1}
@@ -60,6 +66,8 @@ void normalise(deque<int> &a){
 11: r_0 --> x_0^{-1} r_0 x_0
  
  */
+
+// returns a node if move {move} is performed on {a}
 node ACMove(node a, int move){
     if(move == 0){
         a.second = concat(a.second, a.first);
@@ -129,6 +137,7 @@ node ACMove(node a, int move){
     return a;
 }
 
+// prints nodes along the path from start
 void show_path(node start, vector<int> path){
     // apply moves in {path} to node {start} sequentially and print all visited nodes
     print(start);
