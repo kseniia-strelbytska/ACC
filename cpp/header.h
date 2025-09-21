@@ -20,6 +20,7 @@
 
 using namespace std;
 typedef long long ll;
+typedef unsigned long long ld;
 typedef long double ld;
 
 /*
@@ -38,11 +39,11 @@ typedef pair<pair<int, int>, node> node_info;
 
 // ----------support.cpp----------
 
-// prints a node
-void print(node a);
+// prints a node into a given stream
+void print(ostream &stream, node a);
 
-// prints a relator
-void print(deque<int> a);
+// prints a relator  into a given stream
+void print(ostream &stream, deque<int> a);
 
 // returns product of {a} and {b}, simplified
 deque<int> concat(deque<int> a, deque<int> b);
@@ -50,7 +51,7 @@ deque<int> concat(deque<int> a, deque<int> b);
 // returns simplified {a} (with identity terms canceled out)
 void normalise(deque<int> &a);
 
-// returns a node if move {move} is performed on {a}
+// returns a node when move {move} is performed on {a}
 node ACMove(node a, int move);
 
 // prints nodes along the path from start
@@ -62,11 +63,11 @@ void show_path(node start, vector<int> path);
 void generate_p(ll pos, ll val, ll max_len);
 
 // generates all presentations of length {max_len} (in simplified form)
-// stores result in global set {presentations}
+// stores result in a global set {presentations}
 void initialise_presentations(ll max_len);
 
 // generates and saves to separate files all presentations of lengths 2 to 9
-void generate_all();
+void generate_all(string dir_path);
 
 // ----------greedy.cpp----------
 // returns a pair {True/False whether trivialisation was found, path if True else {}}
@@ -82,9 +83,6 @@ vector<node> load_presentations(string file_path);
 
 // reads presentations of Miller-Schupp series
 vector<node> load_presentations_MS(string file_path);
-
-// returns file path where generated presentations (saved by generate_all function) are stored
-string get_file_path(int max_len);
 
 // ----------evaluate.cpp----------
 

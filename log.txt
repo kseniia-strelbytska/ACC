@@ -128,3 +128,21 @@ M-transformations:
 Possible moves: conjugation and r_i -> r_i w, where w is built from product of other relators, their inverses and their conjugations 
 How can we rank the possible w (m-moves)? How can we find the top 1-3 that give the most cancelations -> reduce the presentation lengths the most? (Then we can use the same greedy search, just with better move selection)  
 TO DO: Github
+
+20/09/25
+Checked what nodes cpp and python explore in MS presentation #177 and #181 (both are unsolved by cpp but solved by python). Found a difference in the 5th node, made a fix:
+Fixed moves in cpp version: changed move 1 and 2 from inversion of relators to r_1 -> r_1^r_0^{-1} and r_0 -> r_0^r_1^{-1}, (reverted to the moves implemented in the original python version). Now cpp yields the same results on the first 551 MS presentations (533 solved under max_nodes = 1e6, max_relator_length = 18) Note: max_relator_length=18 is taken from MS all presentations dataset, where each presentation is padded to get relator_length = 18.
+
+21/09/25
+Ran tests: 
+Python: evaluate(presentations, "py_solved_MS_presentations.txt", "py_solved_MS_paths.txt",  int(1e6), 18)
+Solved: 533/551 45m 40s 
+
+Cpp: evaluate(presentations, dir_path + "/results/cpp_solved_presentations" + input_file, dir_path + "/results/cpp_solved_paths" + input_file, (int)(1e6), 18);
+Solved: 533/551 1h 18m 0s
+
+Issue (fixed): cpp takes longer to execute. Partial fix: added -O2 optimization flag during compilation (sped up to run the same test in 38m 32s). 
+
+Issue: After printing "finished greedy search" from greedy_search(), program takes up to 40 seconds to print "Solved X/Y" from evaluate(). Possibly, the program takes a long time to destroy all data structures at the end of greedy_search() call. Try to fix with using .clear() instead of allowing the program to use a built-in destructor. 
+ 
+The results seem perfect? Because 533 is the original # of trivialised out of the whole dataset (1190) states in the paper. Exactly the first 533 presentations are trivialised, though the presentation length of 534th and subsequent is not necessarily greater than 1st-533d. Why is it the case? 

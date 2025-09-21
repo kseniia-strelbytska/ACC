@@ -15,10 +15,7 @@ string get_name(string file_path){
 // runs greedy search on every presentation from {presentations}
 // saves trivialised presentations and their paths
 // prints the number of solved out of total 
-void evaluate(vector<node> presentations, string output_pr, string output_pa, int max_nodes, int max_relator_length){
-    string output_presentation = "/Users/kseniia/Desktop/programming/Projects/acc/results/" + output_pr;
-    string output_path = "/Users/kseniia/Desktop/programming/Projects/acc/results/" + output_pa;
-    
+void evaluate(vector<node> presentations, string output_presentation, string output_path, int max_nodes, int max_relator_length){
     vector<node> s_presentations;
     vector<vector<int>> s_paths;
     
@@ -36,8 +33,7 @@ void evaluate(vector<node> presentations, string output_pr, string output_pa, in
         }
         
         cout << "Solved: " << solved << "/" << ind << endl;
-        cout.flush();
-        
+
 //        if((ind + 1) % 100 == 0){ // store intermediate results
 //            FILE *f = freopen(output_presentation.c_str(), "w", stdout);
 //            for(auto i: s_presentations)
@@ -55,24 +51,20 @@ void evaluate(vector<node> presentations, string output_pr, string output_pa, in
 //            fclose(f1);
 //        }
         
-        if(ind == 604)
+        if(ind == 551)
             break;
     }
     
-    FILE *f = freopen(output_presentation.c_str(), "w", stdout);
+    ofstream out_presentation(output_presentation);
     for(auto i: s_presentations)
-        print(i);
-    
-    fclose(f);
-    
-    FILE *f1 = freopen(output_path.c_str(), "w", stdout);
+        print(out_presentation, i);
+        
+    ofstream out_path(output_path);
     for(auto i: s_paths){
         for(auto j: i)
-            cout << j << ' ';
-        cout << endl;
+            out_path << j << ' ';
+        out_path << endl;
     }
-    
-    fclose(f1);
-    
+        
     cout << solved << ' ' << total << ' ' << fixed << setprecision(3) << ((ld)solved / (ld)total) << endl;
 }

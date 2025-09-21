@@ -50,7 +50,7 @@ vector<node> load_presentations(string file_path){
         stream.close();
     }
     else{
-        cout << "Error" << endl;
+        cout << "Error when opening " << file_path << endl;
     }
     
     return presentations;
@@ -101,15 +101,10 @@ vector<node> load_presentations_MS(string file_path){
         stream.close();
     }
     else{
-        cout << "Error" << endl;
+        cout << "Error when opening " << file_path << endl;
     }
     
     return presentations;
-}
-
-// returns file path where generated presentations (saved by generate_all function) are stored
-string get_file_path(int max_len){
-    return "/Users/kseniia/Desktop/programming/Projects/acc/cpp/datasets/dataset_len" + to_string(max_len) + ".txt";
 }
 
 //int main(){

@@ -5,6 +5,7 @@ int t[101];
 // using a set to store presentations, as after normalisation there can be duplicates
 set<node> presentations;
 
+// a recursive function to generate presentations
 void generate_p(ll pos, ll val, ll max_len){
     t[pos] = val;
     
@@ -52,6 +53,8 @@ void generate_p(ll pos, ll val, ll max_len){
     }
 }
 
+// generates all presentations of length {max_len} (in simplified form)
+// stores result in a global set {presentations}
 void initialise_presentations(ll max_len){
     presentations.clear();
     
@@ -59,17 +62,18 @@ void initialise_presentations(ll max_len){
         generate_p(1, i, max_len);
 }
 
-void generate_all(){
+// generates and saves to separate files all presentations of lengths 2 to 9
+void generate_all(string dir_path){
     for(int max_len = 2; max_len <= 9; max_len++){
-        string file_path = "/Users/kseniia/Desktop/programming/Projects/acc/cpp/datasets/dataset_len" + to_string(max_len) + ".txt";
-        freopen(file_path.c_str(), "w", stdout);
+        string file_path = dir_path + "/cpp/datasets/dataset_len" + to_string(max_len) + ".txt";
+        ofstream output(file_path);
         
         initialise_presentations(max_len);
         
         for(auto i: presentations){
             // printing into a file
-            print(i.first);
-            print(i.second);
+            print(output, i.first);
+            print(output, i.second);
         }
     }
 }
