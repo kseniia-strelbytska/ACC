@@ -27,6 +27,10 @@ pair<bool, vector<int>> greedy_search(node start, int max_nodes, int max_relator
         auto v = q.top();
         q.pop();
         
+//        auto *f = freopen("./output_cpp.txt", "a", stdout);
+//        print(v.second);
+//        fclose(f);
+        
         mx = max(mx, (int)(v.second.first.size()) + (int)(v.second.second.size()));
         
         // if reached a trivial presentation
@@ -87,16 +91,16 @@ pair<bool, vector<int>> greedy_search(node start, int max_nodes, int max_relator
 
 //int main(){
 //    node start = {{-1, 2, 1, -2, -2}, {-1, -1, -2, -2, 1, -2}};
-//    
+//
 //    auto res = greedy_search(start);
-//    
+//
 //    cout << res.first << endl;
 //    cout << (ll)(res.second.size()) << endl;
-//    
+//
 //    for(auto i: res.second)
 //        cout << i << ' ';
 //    cout << endl;
-//     
+//
 //    return 0;
 //}
 //
