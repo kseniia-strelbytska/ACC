@@ -2,7 +2,7 @@
 
 using namespace chrono;
 
-int main(int argc, char **argv){
+void timed_evaluation(char **argv){
     // get current system time
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
     
@@ -19,6 +19,42 @@ int main(int argc, char **argv){
     // calculate the time the program took to execute
     duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
     cout << time_span.count() << endl;
+}
+
+int main(int argc, char **argv){
+    string dir_path = argv[1];
+//    auto presentations = load_presentations(dir_path + "/cpp/datasets/dataset_len9.txt");
+//    
+//    for(auto i: presentations){
+//        auto res = rank_insertmoves(i);
+//        auto res_truth = rank_insertmoves_truth(i);
+//        
+//        if(res != res_truth){
+//            print(cout, i);
+//            
+//            return 0;
+//        }
+//    }
+    
+    node a = {{-2, 1, 1}, {2, 1, -2}};
+    
+    auto res = rank_insertmoves(a);
+//    auto res_truth = rank_insertmoves_truth(a);
+    
+    for(auto i: res){
+        cout << i.first << ' ' << i.second.first << ' ' << i.second.second << endl;
+    }
+    
+    cout << endl;
+//    for(auto i: res_truth){
+//        cout << i.first << ' ' << i.second << endl;
+//    }
+    
+//    for(auto i: res){
+//        cout << i.first << ' ' << i.second << endl;
+//    }
+    
+    
     
     return 0;
 }

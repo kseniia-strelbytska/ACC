@@ -19,6 +19,17 @@ void print(ostream &stream, deque<int> a){
     stream << endl;
 }
 
+
+// returns an inverse of the relator {a}
+deque<int> inverse(deque<int> a){
+    for(auto &i: a){
+        i = -i;
+    }
+    
+    reverse(a.begin(), a.end());
+    return a;
+}
+
 // returns product of {a} and {b}, simplified
 deque<int> concat(deque<int> a, deque<int> b){
     // if two relators -- at the end of {a} and at the start of {b} --
@@ -37,17 +48,21 @@ deque<int> concat(deque<int> a, deque<int> b){
 
 // returns simplified {a} (with identity terms canceled out)
 void normalise(deque<int> &a){
-    // if two relators at the start of {a} simplify to identity, then cancel them
-    while((int)(a.size()) >= 2 && abs(a[0]) == abs(a[1]) && a[0] != a[1]){
-        a.pop_front();
-        a.pop_front();
+    deque<int> result;
+    
+    int sz;
+    
+    for(auto i: a){
+        result.push_back(i);
+        sz = (int)(result.size());
+
+        if(sz >= 2 && abs(result[sz - 1]) == abs(result[sz - 2]) && result[sz - 1] != result[sz - 2]){
+            result.pop_back();
+            result.pop_back();
+        }
     }
     
-    // if two relators at the end of {a} simplify to identity, then cancel them
-    while((int)(a.size()) >= 2 && abs(a[(int)(a.size()) - 1]) == abs(a[(int)(a.size()) - 2]) && a[(int)(a.size()) - 1] != a[(int)(a.size()) - 2]){
-        a.pop_back();
-        a.pop_back();
-    }
+    a = result;
 }
 
 /*

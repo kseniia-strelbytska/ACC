@@ -20,7 +20,7 @@
 
 using namespace std;
 typedef long long ll;
-typedef unsigned long long ld;
+typedef unsigned long long ull;
 typedef long double ld;
 
 /*
@@ -44,6 +44,9 @@ void print(ostream &stream, node a);
 
 // prints a relator  into a given stream
 void print(ostream &stream, deque<int> a);
+
+// returns an inverse of the relator {a}
+deque<int> inverse(deque<int> a);
 
 // returns product of {a} and {b}, simplified
 deque<int> concat(deque<int> a, deque<int> b);
@@ -90,3 +93,19 @@ vector<node> load_presentations_MS(string file_path);
 // saves trivialised presentations and their paths
 // prints the number of solved out of total
 void evaluate(vector<node> presentations, string output_pr, string output_pa, int max_nodes, int max_relator_length);
+
+// ----------insert-moves-vairant.cpp----------
+
+// returns the resulting relator when performing
+// an insert move on relator {a}, with parameters idx and tag
+node insertmove(node a, int idx, int tag);
+
+// updates the vector {ans} with insert moves of type {tag}
+void add_insertmoves(vector<pair<int, pair<int, int>>> &ans, int tag, node a);
+
+// Functions returns a list of pairs {# of cancelations, {idx, tag}}
+vector<pair<int, pair<int, int>>> rank_insertmoves(node a);
+
+// ground truth (relies on concat() function).
+// Functions returns a list of pairs {# of cancelations, {idx, tag}}
+vector<pair<int, pair<int, int>>> rank_insertmoves_truth(node a);
