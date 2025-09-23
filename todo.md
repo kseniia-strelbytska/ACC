@@ -5,8 +5,9 @@
 - [ ] add comments
 - [x] fix file path handling
 - [x] check python implementation (what informations do the nodes store in the heap? When does ACMove cut off branching?) 
-- [ ] test insert moves algorithm
 - [ ] fix data structure clearance in greedy_search
+- [ ] test insert moves algorithm
+- [x] implement greedy search with insert moves
 
 ## Algorithm Improvements
 

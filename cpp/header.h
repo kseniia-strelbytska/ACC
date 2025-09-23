@@ -92,7 +92,8 @@ vector<node> load_presentations_MS(string file_path);
 // runs greedy search on every presentation from {presentations}
 // saves trivialised presentations and their paths
 // prints the number of solved out of total
-void evaluate(vector<node> presentations, string output_pr, string output_pa, int max_nodes, int max_relator_length);
+// takes a pointer to a greedy function as first parameter
+void evaluate(pair<bool, vector<int>> (*greedy_search_variant)(node, int, int), vector<node> presentations, string output_presentation, string output_path, int max_nodes, int max_relator_length);
 
 // ----------insert-moves-vairant.cpp----------
 
@@ -109,3 +110,5 @@ vector<pair<int, pair<int, int>>> rank_insertmoves(node a);
 // ground truth (relies on concat() function).
 // Functions returns a list of pairs {# of cancelations, {idx, tag}}
 vector<pair<int, pair<int, int>>> rank_insertmoves_truth(node a);
+
+pair<bool, vector<int>> greedy_search_insertmoves(node start, int max_nodes, int max_relator_length);

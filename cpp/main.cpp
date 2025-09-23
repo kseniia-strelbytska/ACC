@@ -2,7 +2,7 @@
 
 using namespace chrono;
 
-void timed_evaluation(char **argv){
+void timed_evaluation(char **argv, pair<bool, vector<int>> (*greedy_search_variant)(node, int, int)){
     // get current system time
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
     
@@ -11,7 +11,7 @@ void timed_evaluation(char **argv){
     
     auto presentations = load_presentations_MS(dir_path + "/all_presentations.txt");
     
-    evaluate(presentations, dir_path + "/results/cpp_solved_presentations" + input_file, dir_path + "/results/cpp_solved_paths" + input_file, (ll)(1e6), 18);
+    evaluate(greedy_search_variant, presentations, dir_path + "/results/cpp_solved_presentations" + input_file, dir_path + "/results/cpp_solved_paths" + input_file, (ll)(1e6), 18);
     
     // get current system time
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
@@ -35,17 +35,19 @@ int main(int argc, char **argv){
 //            return 0;
 //        }
 //    }
+
+    timed_evaluation(argv, greedy_search_insertmoves);
     
-    node a = {{-2, 1, 1}, {2, 1, -2}};
-    
-    auto res = rank_insertmoves(a);
-//    auto res_truth = rank_insertmoves_truth(a);
-    
-    for(auto i: res){
-        cout << i.first << ' ' << i.second.first << ' ' << i.second.second << endl;
-    }
-    
-    cout << endl;
+//    node a = {{-2, 1, 1}, {2, 1, -2}};
+//    
+//    auto res = rank_insertmoves(a);
+////    auto res_truth = rank_insertmoves_truth(a);
+//    
+//    for(auto i: res){
+//        cout << i.first << ' ' << i.second.first << ' ' << i.second.second << endl;
+//    }
+//    
+//    cout << endl;
 //    for(auto i: res_truth){
 //        cout << i.first << ' ' << i.second << endl;
 //    }

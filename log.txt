@@ -147,4 +147,4 @@ Issue: After printing "finished greedy search" from greedy_search(), program tak
  
 The results seem perfect? Because 533 is the original # of trivialised out of the whole dataset (1190) states in the paper. Exactly the first 533 presentations are trivialised, though the presentation length of 534th and subsequent is not necessarily greater than 1st-533d. Why is it the case? 
 
-22/09/25 implemented insert moves, seems to work on a few small cases
+22/09/25 implemented insert moves generation, seems to work on a few small cases

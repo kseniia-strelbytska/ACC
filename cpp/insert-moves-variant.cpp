@@ -70,7 +70,7 @@ node insertmove(node a, int idx, int tag){
         a.first = inverse(a.first);
     
     node res = a;
-    
+        
     if(tag % 2 == 0){ // 0 or 2
         // insert a.second into a.first
         // to get a resulting relator of a.first[0...idx] a.second a.first[idx+1...end]
@@ -95,12 +95,15 @@ node insertmove(node a, int idx, int tag){
         for(int i = 0; i <= idx; i++)
             res.second.push_back(a.second[i]);
         
-        for(auto i: a.second)
+        for(auto i: a.first)
             res.second.push_back(i);
         
         for(auto i = idx + 1; i < (int)(a.second.size()); i++)
             res.second.push_back(a.second[i]);
     }
+    
+    normalise(res.first);
+    normalise(res.second);
     
     return res;
 }
@@ -173,7 +176,7 @@ vector<pair<int, pair<int, int>>> rank_insertmoves(node a){
     add_insertmoves(ans, 2, {a.first, inverse(a.second)});
     add_insertmoves(ans, 3, {a.second, inverse(a.first)});
     
-    sort(ans.begin(), ans.end());
+    sort(ans.rbegin(), ans.rend());
 
     return ans;
 }
@@ -214,92 +217,95 @@ vector<pair<int, pair<int, int>>> rank_insertmoves_truth(node a){
     return ans;
 }
 
-//pair<bool, vector<int>> greedy_search_insertmoves(node start, int max_nodes, int max_relator_length){
-//    priority_queue<node_info, vector<node_info>, greater<node_info>> q;
-//    
-//    // 'open set'; stores {{k=presentation length, l=length from the start}, node}
-//    q.push({{(int)(start.first.size()) + (int)(start.second.size()), 0}, start});
-//    
-//    // stores best pair (k, l) for each node
-//    map<node, pair<int, int>> mp;
-//    mp[start] = q.top().first;
-//    
-//    // stores the parent and the previous move for each node
-//    map<node, pair<node, int> > parent;
-//    
-//    // 'closed set'; a set of all expanded nodes (shouldn't be expanded again)
-//    set<node> used;
-//    int expanded = 0;
-//    bool trivial = false;
-//    
-//    node trivial_node;
-//    
-//    int mx = 0;
-//    
-//    while(!q.empty()){
-//        auto v = q.top();
-//        q.pop();
-//        
-////        auto *f = freopen("./output_cpp.txt", "a", stdout);
-////        print(v.second);
-////        fclose(f);
-//        
-//        mx = max(mx, (int)(v.second.first.size()) + (int)(v.second.second.size()));
-//        
-//        // if reached a trivial presentation
-//        if((int)(v.second.first.size()) + (int)(v.second.second.size()) == 2){
-//            trivial = true;
-//            trivial_node = v.second;
-//            
-//            break;
-//        }
-//        
-//        auto all_moves = rank_insert_moves()
-//        
-//        for(int move = 0; move < 12; move++){
-//            auto to = ACMove(v.second, move);
-//            
-//            // calculate the 'cost' to reach node {to}
-//            pair<int, int> cost = {(int)(to.first.size()) + (int)(to.second.size()), v.first.second + 1};
-//            
-//            // if {to} hasn't been expanded and {cost} is better than current best for {to},
-//            // then push to the open set
-//            
-//            if((int)(to.first.size()) + (int)(to.second.size()) == 2){
-//                trivial = true;
-//                trivial_node = to;
-//                
-//                parent[to] = {v.second, move};
-//                
-//                break;
-//            }
-//            
-//            if((int)(to.first.size()) < max_relator_length && (int)(to.second.size()) < max_relator_length && !used.count(to)){
-//                used.insert(to);
-//                mp[to] = cost;
-//                  
-//                parent[to] = {v.second, move};
-//                q.push({cost, to});
-//            }
-//        }
-//        
-//        if((ll)(used.size()) >= max_nodes || trivial)
-//            break;
-//    }
-//    
-//    vector<int> path;
-//        
-//    if(trivial){
-//        // trace the path back from the trivial node to the starting node
-//        while(trivial_node != start){
-//            path.push_back(parent[trivial_node].second);
-//            trivial_node = parent[trivial_node].first;
-//        }
-//    }
-//
-//    reverse(path.begin(), path.end());
-//    
-//    cout << "Finished Greedy Search. " << (trivial ? "Trivialisation found" : "No trivialisation found") << endl;
-//        
-//    return {trivial, path};
-//}
+pair<bool, vector<int>> greedy_search_insertmoves(node start, int max_nodes, int max_relator_length){
+    priority_queue<node_info, vector<node_info>, greater<node_info>> q;
+    
+    // 'open set'; stores {{k=presentation length, l=length from the start}, node}
+    q.push({{(int)(start.first.size()) + (int)(start.second.size()), 0}, start});
+    
+    // stores best pair (k, l) for each node
+    map<node, pair<int, int>> mp;
+    mp[start] = q.top().first;
+    
+    // stores the parent and the previous move for each node
+    map<node, pair<node, int> > parent;
+    
+    // 'closed set'; a set of all expanded nodes (shouldn't be expanded again)
+    set<node> used;
+    int expanded = 0;
+    bool trivial = false;
+    
+    node trivial_node;
+    
+    int mx = 0;
+    
+    while(!q.empty()){
+        auto v = q.top();
+        q.pop();
+        
+//        auto *f = freopen("./output_cpp.txt", "a", stdout);
+//        print(v.second);
+//        fclose(f);
+        
+        mx = max(mx, (int)(v.second.first.size()) + (int)(v.second.second.size()));
+        
+        // if reached a trivial presentation
+        if((int)(v.second.first.size()) + (int)(v.second.second.size()) == 2){
+            trivial = true;
+            trivial_node = v.second;
+            
+            break;
+        }
+        
+        auto all_moves = rank_insertmoves(v.second);
+        
+        int neighbours_found = 0;
+        
+        for(int move = 0; move < (int)all_moves.size() && neighbours_found < 40; move++){
+            auto to = insertmove(v.second, all_moves[move].second.first, all_moves[move].second.second); // node, index, tag
+            
+            pair<int, int> cost = {(int)(to.first.size()) + (int)(to.second.size()), v.first.second + 1};
+            
+            // if {to} hasn't been expanded and {cost} is better than current best for {to},
+            // then push to the open set
+            
+            if((int)(to.first.size()) + (int)(to.second.size()) == 2){
+                trivial = true;
+                trivial_node = to;
+                
+                parent[to] = {v.second, move};
+                
+                break;
+            }
+            
+            if((int)(to.first.size()) < max_relator_length && (int)(to.second.size()) < max_relator_length && !used.count(to)){
+                neighbours_found += 1;
+                
+                used.insert(to);
+                mp[to] = cost;
+                  
+                parent[to] = {v.second, move};
+                q.push({cost, to});
+            }
+        }
+        
+        if((ll)(used.size()) >= max_nodes || trivial)
+            break;
+    }
+    
+    vector<int> path;
+        
+    if(trivial){
+        // trace the path back from the trivial node to the starting node
+        while(trivial_node != start){
+            path.push_back(parent[trivial_node].second);
+            trivial_node = parent[trivial_node].first;
+        }
+    }
+
+    reverse(path.begin(), path.end());
+    
+    cout << "Finished Greedy Search. " << (trivial ? "Trivialisation found" : "No trivialisation found") << endl;
+        
+    return {trivial, path};
+}

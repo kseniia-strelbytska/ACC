@@ -15,45 +15,37 @@ string get_name(string file_path){
 // runs greedy search on every presentation from {presentations}
 // saves trivialised presentations and their paths
 // prints the number of solved out of total 
-void evaluate(vector<node> presentations, string output_presentation, string output_path, int max_nodes, int max_relator_length){
+void evaluate(pair<bool, vector<int>> (*greedy_search_variant)(node, int, int), vector<node> presentations, string output_presentation, string output_path, int max_nodes, int max_relator_length){
     vector<node> s_presentations;
     vector<vector<int>> s_paths;
     
     ll solved = 0, total = (ll)(presentations.size()), ind = 0;
+    int solved_small = 0, solved_large = 0;
+    
+    bool const test_large = false;
     
     for(auto i: presentations){
         ind++;
-        auto result = greedy_search(i, max_nodes, max_relator_length);
         
-        if(result.first == true){
-            solved++;
+        if(ind <= 400 || (test_large && ind >= 534 && ind <= 550)){
+            auto result = greedy_search_variant(i, max_nodes, max_relator_length);
             
-            s_presentations.push_back(i);
-            s_paths.push_back(result.second);
+            if(result.first == true){
+                solved++;
+                
+                if(ind <= 400)
+                    solved_small++;
+                else
+                    solved_large++;
+                
+                s_presentations.push_back(i);
+                s_paths.push_back(result.second);
+            }
+            
+            cout << "Solved: " << solved << "/" << ind << endl;
         }
-        
-        cout << "Solved: " << solved << "/" << ind << endl;
-
-//        if((ind + 1) % 100 == 0){ // store intermediate results
-//            FILE *f = freopen(output_presentation.c_str(), "w", stdout);
-//            for(auto i: s_presentations)
-//                print(i);
-//            
-//            fclose(f);
-//            
-//            FILE *f1 = freopen(output_path.c_str(), "w", stdout);
-//            for(auto i: s_paths){
-//                for(auto j: i)
-//                    cout << j << ' ';
-//                cout << endl;
-//            }
-//            
-//            fclose(f1);
-//        }
-        
-        if(ind == 551)
-            break;
     }
+    cout << "Result: " << solved_small << "/400 " << solved_large << "/17" << endl;
     
     ofstream out_presentation(output_presentation);
     for(auto i: s_presentations)
