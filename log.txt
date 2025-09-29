@@ -148,3 +148,6 @@ Issue: After printing "finished greedy search" from greedy_search(), program tak
 The results seem perfect? Because 533 is the original # of trivialised out of the whole dataset (1190) states in the paper. Exactly the first 533 presentations are trivialised, though the presentation length of 534th and subsequent is not necessarily greater than 1st-533d. Why is it the case? 
 
 22/09/25 implemented insert moves generation, seems to work on a few small cases
+24/09/25 testing: #of cancelations performs the same as (new length of presentation) when ranking moves. 365/400 solved
+
+28/09/25 Ran greedy_search to find a path from     node start = {{-2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}}; to     node finish = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}}; Trivialisation not found, but searched could reach node " 1 2 2 2 1 -2 1 1 1 | 1". This collapses to "2 2 | 1". What?

@@ -1,54 +1,5 @@
 #include "header.h"
 
-struct prefixHash{
-    vector<ll> pref, pw;
-    vector<ull> pref_ull, pw_ull;
-    
-    // the first hash will be calculated modulo 1e9 + 7,
-    // and the second modulo 2^64 (automatic in unsigned long long)
-    ll const mod = (ll)(1e9 + 7), base = 7;
-    
-    void build(deque<int> a){
-        ll n = a.size();
-        
-        pw.resize(n + 1);
-        pw_ull.resize(n + 1);
-        
-        pref.resize(n);
-        pref_ull.resize(n);
-        
-        pw[0] = pw_ull[0] = 1;
-        for(int i = 1; i <= n; i++){
-            pw[i] = (pw[i - 1] * base) % mod;
-            pw_ull[i] = pw_ull[i - 1] * base;
-        }
-        
-        for(int i = 0; i < n; i++){
-            if(i != 0)
-                pref[i] = (pref[i - 1] * base) % mod, pref_ull[i] = pref_ull[i - 1] * base;
-            
-            // make generators positive by adding 3
-            pref[i] = (pref[i] + (a[i] + 3)) % mod;
-            pref_ull[i] += a[i] + 3;
-        }
-    }
-    
-    pair<ll, ull> get_hash(ll l, ll r){
-        ll ans = pref[r];
-        ull ans_ull = pref_ull[r];
-        
-        if(l != 0){
-            ans = (ans - (pref[l - 1] * pw[r - l + 1]) % mod) % mod;
-            if(ans < 0)
-                ans += mod;
-            
-            ans_ull -= pref_ull[l - 1] * pw_ull[r - l + 1];
-        }
-        
-        return {ans, ans_ull};
-    }
-};
-
 /*
  Parameters idx and type describe each insert move
  
@@ -176,7 +127,7 @@ vector<pair<int, pair<int, int>>> rank_insertmoves(node a){
     add_insertmoves(ans, 2, {a.first, inverse(a.second)});
     add_insertmoves(ans, 3, {a.second, inverse(a.first)});
     
-    sort(ans.rbegin(), ans.rend());
+    sort(ans.rbegin(), ans.rend()); // important: descending order of # of cancellations
 
     return ans;
 }
@@ -212,8 +163,8 @@ vector<pair<int, pair<int, int>>> rank_insertmoves_truth(node a){
         ans.push_back({cnt, {i, 0}});
     }
     
-    sort(ans.begin(), ans.end());
-
+    sort(ans.rbegin(), ans.rend());
+    
     return ans;
 }
 
@@ -248,7 +199,7 @@ pair<bool, vector<int>> greedy_search_insertmoves(node start, int max_nodes, int
 //        fclose(f);
         
         mx = max(mx, (int)(v.second.first.size()) + (int)(v.second.second.size()));
-        
+
         // if reached a trivial presentation
         if((int)(v.second.first.size()) + (int)(v.second.second.size()) == 2){
             trivial = true;
@@ -261,7 +212,7 @@ pair<bool, vector<int>> greedy_search_insertmoves(node start, int max_nodes, int
         
         int neighbours_found = 0;
         
-        for(int move = 0; move < (int)all_moves.size() && neighbours_found < 40; move++){
+        for(int move = 0; move < (int)all_moves.size() && neighbours_found < 20; move++){
             auto to = insertmove(v.second, all_moves[move].second.first, all_moves[move].second.second); // node, index, tag
             
             pair<int, int> cost = {(int)(to.first.size()) + (int)(to.second.size()), v.first.second + 1};

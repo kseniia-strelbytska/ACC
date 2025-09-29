@@ -168,6 +168,7 @@ void show_path(node start, vector<int> path){
     
     for(auto i: path){
         start = ACMove(start, i);
+        cout << "MOVE " << i << endl;
         print(cout, start);
     }
 }

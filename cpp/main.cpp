@@ -10,10 +10,13 @@ void timed_evaluation(char **argv, pair<bool, vector<int>> (*greedy_search_varia
     string input_file = argv[2];
     
     auto presentations = load_presentations_MS(dir_path + "/all_presentations.txt");
+//    auto presentations = load_presentations(dir_path + "/cpp/datasets/dataset_len7.txt");
     
-    evaluate(greedy_search_variant, presentations, dir_path + "/results/cpp_solved_presentations" + input_file, dir_path + "/results/cpp_solved_paths" + input_file, (ll)(1e6), 18);
+    string name = "rotate";
     
-    // get current system time
+    evaluate(greedy_search_variant, presentations, dir_path + "/results/solved_presentations_" + name, dir_path + "/results/solved_paths_" + name, (ll)(1e6), 18);
+    
+//    // get current system time
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
     // calculate the time the program took to execute
@@ -36,8 +39,14 @@ int main(int argc, char **argv){
 //        }
 //    }
 
-    timed_evaluation(argv, greedy_search_insertmoves);
+//    timed_evaluation(argv, greedy_search);
     
+    //[-1, 2, 1, -2, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 2, 1, 1, 2, -1, -1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    // [-1, 2, 1, -2, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 2, 1, 1, 2, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    
+//    timed_evaluation(argv, greedy_search_insertmovesrotate);
+    timed_evaluation(argv, greedy_search_insertmovesrotate);
+            
 //    node a = {{-2, 1, 1}, {2, 1, -2}};
 //    
 //    auto res = rank_insertmoves(a);

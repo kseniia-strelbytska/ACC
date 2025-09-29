@@ -17,6 +17,8 @@
 #include <unordered_map>
 #include <filesystem>
 #include <fstream>
+#include<cstdlib>
+#include<ctime>
 
 using namespace std;
 typedef long long ll;
@@ -112,3 +114,13 @@ vector<pair<int, pair<int, int>>> rank_insertmoves(node a);
 vector<pair<int, pair<int, int>>> rank_insertmoves_truth(node a);
 
 pair<bool, vector<int>> greedy_search_insertmoves(node start, int max_nodes, int max_relator_length);
+
+// ----------insertmoverotate.cpp----------
+
+node insertmoverotate(node a, int idx, int tag, int rotation);
+
+void add_insertmovesrotate(vector<pair<int, vector<int>>> &ans, node a, int tag, int rotation);
+
+vector<pair<int, vector<int>>>  rank_insertmovesrotate(node a);
+
+pair<bool, vector<int>> greedy_search_insertmovesrotate(node start, int max_nodes, int max_relator_length);
