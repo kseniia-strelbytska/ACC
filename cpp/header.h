@@ -39,6 +39,12 @@ typedef long double ld;
 typedef pair<deque<int>, deque<int>> node;
 typedef pair<pair<int, int>, node> node_info;
 
+using GreedyResult = std::variant<
+    std::pair<bool, std::vector<int>>,
+    std::pair<bool, std::vector<std::vector<int>>>>;
+
+using GreedyFn = GreedyResult(*)(node, int, int);
+
 // ----------support.cpp----------
 
 // prints a node into a given stream
@@ -76,7 +82,7 @@ void generate_all(string dir_path);
 
 // ----------greedy.cpp----------
 // returns a pair {True/False whether trivialisation was found, path if True else {}}
-pair<bool, vector<int>> greedy_search(node start, int max_nodes, int max_relator_length);
+GreedyResult greedy_search(node start, int max_nodes, int max_relator_length);
 
 // ----------load_datasets.cpp----------
 
@@ -95,7 +101,7 @@ vector<node> load_presentations_MS(string file_path);
 // saves trivialised presentations and their paths
 // prints the number of solved out of total
 // takes a pointer to a greedy function as first parameter
-void evaluate(pair<bool, vector<int>> (*greedy_search_variant)(node, int, int), vector<node> presentations, string output_presentation, string output_path, int max_nodes, int max_relator_length);
+void evaluate(GreedyFn greedy_search_variant, vector<node> presentations, string output_presentation, string output_path, int max_nodes, int max_relator_length);
 
 // ----------insert-moves-vairant.cpp----------
 
@@ -113,9 +119,11 @@ vector<pair<int, pair<int, int>>> rank_insertmoves(node a);
 // Functions returns a list of pairs {# of cancelations, {idx, tag}}
 vector<pair<int, pair<int, int>>> rank_insertmoves_truth(node a);
 
-pair<bool, vector<int>> greedy_search_insertmoves(node start, int max_nodes, int max_relator_length);
+GreedyResult greedy_search_insertmoves(node start, int max_nodes, int max_relator_length);
 
 // ----------insertmoverotate.cpp----------
+
+void show_path_insertmovesrotate(node start, vector<vector<int>> path);
 
 node insertmoverotate(node a, int idx, int tag, int rotation);
 
@@ -123,4 +131,7 @@ void add_insertmovesrotate(vector<pair<int, vector<int>>> &ans, node a, int tag,
 
 vector<pair<int, vector<int>>>  rank_insertmovesrotate(node a);
 
-pair<bool, vector<int>> greedy_search_insertmovesrotate(node start, int max_nodes, int max_relator_length);
+GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_relator_length);
+
+int get_distance(node a, node b);
+GreedyResult distance_greedy_search_insertmovesrotate(node start, int max_nodes, int max_relator_length);

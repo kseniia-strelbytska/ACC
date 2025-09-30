@@ -168,7 +168,7 @@ vector<pair<int, pair<int, int>>> rank_insertmoves_truth(node a){
     return ans;
 }
 
-pair<bool, vector<int>> greedy_search_insertmoves(node start, int max_nodes, int max_relator_length){
+GreedyResult greedy_search_insertmoves(node start, int max_nodes, int max_relator_length){
     priority_queue<node_info, vector<node_info>, greater<node_info>> q;
     
     // 'open set'; stores {{k=presentation length, l=length from the start}, node}
@@ -258,5 +258,5 @@ pair<bool, vector<int>> greedy_search_insertmoves(node start, int max_nodes, int
     
     cout << "Finished Greedy Search. " << (trivial ? "Trivialisation found" : "No trivialisation found") << endl;
         
-    return {trivial, path};
+    return make_pair(trivial, path);
 }

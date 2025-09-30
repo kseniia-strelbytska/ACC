@@ -2,15 +2,15 @@
 
 using namespace chrono;
 
-void timed_evaluation(char **argv, pair<bool, vector<int>> (*greedy_search_variant)(node, int, int)){
+void timed_evaluation(char **argv, GreedyFn greedy_search_variant){
     // get current system time
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
     
     string dir_path = argv[1];
     string input_file = argv[2];
     
-    auto presentations = load_presentations_MS(dir_path + "/all_presentations.txt");
-//    auto presentations = load_presentations(dir_path + "/cpp/datasets/dataset_len7.txt");
+//    auto presentations = load_presentations_MS(dir_path + "/all_presentations.txt");
+    auto presentations = load_presentations(dir_path + "/cpp/datasets/dataset_len7.txt");
     
     string name = "rotate";
     
@@ -45,10 +45,21 @@ int main(int argc, char **argv){
     // [-1, 2, 1, -2, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 2, 1, 1, 2, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     
 //    timed_evaluation(argv, greedy_search_insertmovesrotate);
-    timed_evaluation(argv, greedy_search_insertmovesrotate);
+//    timed_evaluation(argv, greedy_search_insertmovesrotate);
             
-//    node a = {{-2, 1, 1}, {2, 1, -2}};
-//    
+
+    node a = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+    node b = {{-2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+    
+    auto res = distance_greedy_search_insertmovesrotate(b, int(1e7), 18);
+    
+    auto result = get<pair<bool, vector<vector<int>>>> (res);
+    
+    cout << result.first << endl;
+    
+    show_path_insertmovesrotate(b, result.second);
+    
+//
 //    auto res = rank_insertmoves(a);
 ////    auto res_truth = rank_insertmoves_truth(a);
 //    

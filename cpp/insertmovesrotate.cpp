@@ -50,6 +50,18 @@ struct prefixHash{
     }
 };
 
+// prints nodes along the path from start
+void show_path_insertmovesrotate(node start, vector<vector<int>> path){
+    // apply moves in {path} to node {start} sequentially and print all visited nodes
+    print(cout, start);
+    
+    for(auto i: path){
+        start = insertmoverotate(start, i[0], i[1], i[2]);
+        cout << "MOVE " << i[0] << ' ' << i[1] << ' ' << i[2] << endl;
+        print(cout, start);
+    }
+}
+
 node insertmoverotate(node a, int idx, int tag, int rotation){
     if(tag == 2)
         a.second = inverse(a.second);
@@ -115,6 +127,7 @@ void add_insertmovesrotate(vector<pair<int, vector<int>>> &ans, node a, int tag,
     
     int addition = n + m;
     
+    // After cyclic shift, we might be able to cancel some terms in a.first or a.second
     normalise(a.first);
     normalise(a.second);
         
@@ -122,6 +135,8 @@ void add_insertmovesrotate(vector<pair<int, vector<int>>> &ans, node a, int tag,
     
     addition -= n + m;
     addition /= 2;
+    
+    // {addition} = (how many terms were cancelled in total) / 2
 
     for(auto &i: a.second)
         i = -i; // because to get a cancellation, we need an inverse of the term to match a term in a.first
@@ -201,7 +216,7 @@ void add_insertmovesrotate(vector<pair<int, vector<int>>> &ans, node a, int tag,
         cancelations += l;
 
         // if the whole of a.second was canceled out,
-        // we can now see if the left and right parts of a.first have some terms cancelling out. 
+        // we can now see if the left and right parts of a.first have some terms cancelling out.
         if(cancelations == m){
             ll lhs = i + 1 - (cancelations - l), rhs = (n - i) - 1 - l;
                         
@@ -272,7 +287,7 @@ vector<pair<int, vector<int>>> rank_insertmovesrotate(node a){
     return ans;
 }
 
-pair<bool, vector<int>> greedy_search_insertmovesrotate(node start, int max_nodes, int max_relator_length){
+GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_relator_length){
     priority_queue<node_info, vector<node_info>, greater<node_info>> q;
     
     // 'open set'; stores {{k=presentation length, l=length from the start}, node}
@@ -283,7 +298,8 @@ pair<bool, vector<int>> greedy_search_insertmovesrotate(node start, int max_node
     mp[start] = q.top().first;
     
     // stores the parent and the previous move for each node
-    map<node, pair<node, int> > parent;
+    // move is now defined by three numbers: index, tag, # of rotation
+//    map<node, pair<node, vector<int>>> parent;
     
     // 'closed set'; a set of all expanded nodes (shouldn't be expanded again)
     set<node> used;
@@ -293,6 +309,9 @@ pair<bool, vector<int>> greedy_search_insertmovesrotate(node start, int max_node
     node trivial_node;
     
     int mx = 0;
+    
+    node finish = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+    node finish2 = {{-2, -2, -1, -1, -1, -1, 2, 1}, {1, -2, -1, 2, 1}};
     
     while(!q.empty()){
         auto v = q.top();
@@ -304,6 +323,13 @@ pair<bool, vector<int>> greedy_search_insertmovesrotate(node start, int max_node
         
         mx = max(mx, (int)(v.second.first.size()) + (int)(v.second.second.size()));
 
+        if(v.second == finish || v.second == finish2){
+            trivial = true;
+            trivial_node = v.second;
+            
+            break;
+        }
+        
         // if reached a trivial presentation
         if((int)(v.second.first.size()) + (int)(v.second.second.size()) == 2){
             trivial = true;
@@ -316,7 +342,7 @@ pair<bool, vector<int>> greedy_search_insertmovesrotate(node start, int max_node
         
         int neighbours_found = 0;
         
-        for(int move = 0; move < (int)all_moves.size() && neighbours_found < 20; move++){
+        for(int move = 0; move < (int)all_moves.size() && neighbours_found < 40; move++){
             auto to = insertmoverotate(v.second, all_moves[move].second[0], all_moves[move].second[1], all_moves[move].second[2]); // node, index, tag
             
             pair<int, int> cost = {(int)(to.first.size()) + (int)(to.second.size()), v.first.second + 1};
@@ -328,7 +354,7 @@ pair<bool, vector<int>> greedy_search_insertmovesrotate(node start, int max_node
                 trivial = true;
                 trivial_node = to;
                 
-                parent[to] = {v.second, move};
+//                parent[to] = {v.second, all_moves[move].second};
                 
                 break;
             }
@@ -339,7 +365,7 @@ pair<bool, vector<int>> greedy_search_insertmovesrotate(node start, int max_node
                 used.insert(to);
                 mp[to] = cost;
                   
-                parent[to] = {v.second, move};
+//                parent[to] = {v.second, all_moves[move].second};
                 q.push({cost, to});
             }
         }
@@ -348,19 +374,162 @@ pair<bool, vector<int>> greedy_search_insertmovesrotate(node start, int max_node
             break;
     }
     
-    vector<int> path;
+    vector<vector<int>> path;
         
-    if(trivial){
-        // trace the path back from the trivial node to the starting node
-        while(trivial_node != start){
-            path.push_back(parent[trivial_node].second);
-            trivial_node = parent[trivial_node].first;
-        }
-    }
+//    if(trivial){
+//        // trace the path back from the trivial node to the starting node
+//        while(trivial_node != start){
+//            path.push_back(parent[trivial_node].second);
+//            trivial_node = parent[trivial_node].first;
+//        }
+//    }
 
     reverse(path.begin(), path.end());
     
     cout << "Finished Greedy Search. " << (trivial ? "Trivialisation found" : "No trivialisation found") << endl;
         
-    return {trivial, path};
+    return make_pair(trivial, path);
+}
+
+int get_distance(node a, node b){
+    vector<int> p1, p2;
+    for(auto i: a.first)
+        p1.push_back(i);
+    for(auto i: a.second)
+        p1.push_back(i);
+    
+    for(auto i: b.first)
+        p2.push_back(i);
+    for(auto i: b.second)
+        p2.push_back(i);
+    
+    int n = (int)(p1.size()), m = (int)(p2.size());
+    vector<vector<int>> dp(n, vector<int> (m));
+    
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < m; j++){
+            dp[i][j] = (int)(1e9);
+            
+            if(p1[i] == p2[j]){
+                dp[i][j] = min(dp[i][j], (i - 1 >= 0 && j - 1 >= 0) ? dp[i - 1][j - 1] : max(i, j));
+            }
+            
+            dp[i][j] = min(dp[i][j], (i - 1 >= 0) ? 1 + dp[i - 1][j] : 2 + j);
+            dp[i][j] = min(dp[i][j], (j - 1 >= 0) ? 1 + dp[i][j - 1] : 2 + i);
+        }
+    }
+    
+    return dp[n - 1][m - 1];
+}
+
+GreedyResult distance_greedy_search_insertmovesrotate(node start, int max_nodes, int max_relator_length){
+    // change: storing in a set instead of priority queue
+    set<node_info> q;
+    
+    // 'open set'; stores {{k=presentation length, l=length from the start}, node}
+    
+    // stores best pair (k, l) for each node
+    map<node, pair<int, int>> mp;
+    mp[start] = (*q.begin()).first;
+    
+    // stores the parent and the previous move for each node
+    // move is now defined by three numbers: index, tag, # of rotation
+//    map<node, pair<node, vector<int>>> parent;
+    
+    // 'closed set'; a set of all expanded nodes (shouldn't be expanded again)
+    set<node> used;
+    int expanded = 0;
+    bool trivial = false;
+    
+    node trivial_node;
+    
+    int mx = 0;
+    
+    node finish = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+    node finish2 = {{-2, -2, -1, -1, -1, -1, 2, 1}, {1, -2, -1, 2, 1}};
+    
+    int distance = min(get_distance(start, finish), get_distance(start, finish2));
+    
+    q.insert({{distance, 0}, start});
+
+    while(!q.empty()){
+        auto v = *q.begin();
+        q.erase(q.begin());
+        
+        print(cout, v.second);
+                
+//        auto *f = freopen("./output_cpp.txt", "a", stdout);
+//        print(v.second);
+//        fclose(f);
+        
+        mx = max(mx, (int)(v.second.first.size()) + (int)(v.second.second.size()));
+
+        if(v.second == finish || v.second == finish2){
+            trivial = true;
+            trivial_node = v.second;
+            
+            break;
+        }
+        
+        // if reached a trivial presentation
+        if((int)(v.second.first.size()) + (int)(v.second.second.size()) == 2){
+            trivial = true;
+            trivial_node = v.second;
+            
+            break;
+        }
+        
+        auto all_moves = rank_insertmovesrotate(v.second);
+        
+        int neighbours_found = 0;
+        
+        for(int move = 0; move < (int)all_moves.size() && neighbours_found < 80; move++){
+            auto to = insertmoverotate(v.second, all_moves[move].second[0], all_moves[move].second[1], all_moves[move].second[2]); // node, index, tag
+            
+            int distance = min(get_distance(to, finish), get_distance(to, finish2));
+            
+            pair<int, int> cost = {distance, v.first.second + 1};
+            
+            // if {to} hasn't been expanded and {cost} is better than current best for {to},
+            // then push to the open set
+            
+            if((int)(to.first.size()) + (int)(to.second.size()) == 2){
+                trivial = true;
+                trivial_node = to;
+                
+//                parent[to] = {v.second, all_moves[move].second};
+                
+                break;
+            }
+            
+            if((int)(to.first.size()) < max_relator_length && (int)(to.second.size()) < max_relator_length && !used.count(to)){
+                neighbours_found += 1;
+                
+                used.insert(to);
+                mp[to] = cost;
+                  
+//                parent[to] = {v.second, all_moves[move].second};
+                q.insert({cost, to});
+            }
+        }
+        
+        if((ll)(used.size()) >= max_nodes || trivial)
+            break;
+    }
+    
+    vector<vector<int>> path;
+        
+//    if(trivial){
+//        // trace the path back from the trivial node to the starting node
+//        while(trivial_node != start){
+//            path.push_back(parent[trivial_node].second);
+//            trivial_node = parent[trivial_node].first;
+//        }
+//    }
+
+    reverse(path.begin(), path.end());
+    
+    cout << "Finished Greedy Search. " << (trivial ? "Trivialisation found" : "No trivialisation found") << endl;
+        
+    return make_pair(trivial, path);
 }

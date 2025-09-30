@@ -36,12 +36,14 @@ void random_shuffle(vector<node> &presentations){
     presentations = shuffled;
 }
 
-void evaluate(pair<bool, vector<int>> (*greedy_search_variant)(node, int, int), vector<node> presentations, string output_presentation, string output_path, int max_nodes, int max_relator_length){
+void evaluate(GreedyFn greedy_search_variant, vector<node> presentations, string output_presentation, string output_path, int max_nodes, int max_relator_length){
     
-//    random_shuffle(presentations);
+    random_shuffle(presentations);
     
     vector<node> s_presentations;
-    vector<vector<int>> s_paths;
+    
+    // each path is represented by a vector of moves, each move is a vector
+    vector<vector<vector<int>>> s_paths;
     
     ll solved = 0, total = (ll)(presentations.size()), ind = 0;
     int solved_small = 0, solved_large = 0;
@@ -52,14 +54,37 @@ void evaluate(pair<bool, vector<int>> (*greedy_search_variant)(node, int, int), 
         ind++;
                 
 //            print(cout, i);
+        
         auto result = greedy_search_variant(i, max_nodes, max_relator_length);
         
-        if(result.first == true){
-            solved++;
-            
-            s_presentations.push_back(i);
-            s_paths.push_back(result.second);
+        if(holds_alternative<pair<bool, vector<int>>>(result)){
+            auto flag_path = get<pair<bool, vector<int>>>(result);
+            if(flag_path.first == true){
+                solved++;
+                
+                s_presentations.push_back(i);
+                
+                // format path so that each move is a vector
+                vector<vector<int>> formatted_path;
+                
+                for(auto i: flag_path.second)
+                    formatted_path.push_back({i});
+                
+                s_paths.push_back(formatted_path);
+            }
         }
+        else{
+            auto flag_path = get<pair<bool, vector<vector<int>>>>(result);
+            if(flag_path.first == true){
+                solved++;
+                
+                s_presentations.push_back(i);
+                
+                // no formatting needed
+                s_paths.push_back(flag_path.second);
+            }
+        }
+        
         
         cout << "Solved: " << solved << "/" << ind << endl;
         
@@ -74,8 +99,11 @@ void evaluate(pair<bool, vector<int>> (*greedy_search_variant)(node, int, int), 
         
     ofstream out_path(output_path);
     for(auto i: s_paths){
-        for(auto j: i)
-            out_path << j << ' ';
+        for(auto move: i){
+            for(auto j: move)
+                out_path << j << ' ';
+            out_path << endl;
+        }
         out_path << endl;
     }
         

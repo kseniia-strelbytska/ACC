@@ -151,3 +151,19 @@ The results seem perfect? Because 533 is the original # of trivialised out of th
 24/09/25 testing: #of cancelations performs the same as (new length of presentation) when ranking moves. 365/400 solved
 
 28/09/25 Ran greedy_search to find a path from     node start = {{-2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}}; to     node finish = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}}; Trivialisation not found, but searched could reach node " 1 2 2 2 1 -2 1 1 1 | 1". This collapses to "2 2 | 1". What?
+
+29/09/25 Implemented insert+rotation in N^2logN, ran test on MS:
+#405 
+#465
+Unsolved by insert + rotation (all others up to 533 are solved)
+41m 48s
+
+Solved: 531/537
+
+Good results, need to look into 405 and 465 -- why were they not solved by insertion but solved by regular classical greedy search? 
+
+Need to ensure I didn't make any bugs in the code: Should run tests on datasets of len6...8, 1e6, 18; and compare results to two other (classical, insert moves). If the results lie between the two, that's good. If they overshoot classical results - very bad.
+
+30/09/25 
+Ran     auto res = greedy_search_insertmovesrotate(b, int(1e7), 18); exploring top 40 neighbours. Tried to find path from node b = {{-2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}}; to node finish = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}}; or node finish2 = {{-2, -2, -1, -1, -1, -1, 2, 1}, {1, -2, -1, 2, 1}}; or trivial
+RAM overflowed.. Terminated after 5 minutes of execution. 
