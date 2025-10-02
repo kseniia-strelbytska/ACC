@@ -135,3 +135,9 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
 
 int get_distance(node a, node b);
 GreedyResult distance_greedy_search_insertmovesrotate(node start, int max_nodes, int max_relator_length);
+
+// ----------analyse.cpp----------
+
+deque<int> get_smallest_rotation(deque<int> a);
+
+void analyse(vector<node> presentations, string sol_path);

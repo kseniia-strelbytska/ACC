@@ -9,10 +9,10 @@ void timed_evaluation(char **argv, GreedyFn greedy_search_variant){
     string dir_path = argv[1];
     string input_file = argv[2];
     
-//    auto presentations = load_presentations_MS(dir_path + "/all_presentations.txt");
-    auto presentations = load_presentations(dir_path + "/cpp/datasets/dataset_len7.txt");
+    auto presentations = load_presentations_MS(dir_path + "/all_presentations.txt");
+//    auto presentations = load_presentations(dir_path + "/cpp/datasets/dataset_len7.txt");
     
-    string name = "rotate";
+    string name = "rotate_MS";
     
     evaluate(greedy_search_variant, presentations, dir_path + "/results/solved_presentations_" + name, dir_path + "/results/solved_paths_" + name, (ll)(1e6), 18);
     
@@ -24,8 +24,13 @@ void timed_evaluation(char **argv, GreedyFn greedy_search_variant){
     cout << time_span.count() << endl;
 }
 
-int main(int argc, char **argv){
+int main(int argc, char **argv){    
     string dir_path = argv[1];
+    
+    auto presentations = load_presentations_MS(dir_path + "/all_presentations.txt");
+    
+    analyse(presentations, "/Users/kseniia/Desktop/programming/Projects/ACC/results/solved_paths_rotate_MS");
+    
 //    auto presentations = load_presentations(dir_path + "/cpp/datasets/dataset_len9.txt");
 //    
 //    for(auto i: presentations){
@@ -41,42 +46,22 @@ int main(int argc, char **argv){
 
 //    timed_evaluation(argv, greedy_search);
     
-    //[-1, 2, 1, -2, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 2, 1, 1, 2, -1, -1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    // [-1, 2, 1, -2, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 2, 1, 1, 2, -1, -1, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    
 //    timed_evaluation(argv, greedy_search_insertmovesrotate);
 //    timed_evaluation(argv, greedy_search_insertmovesrotate);
-            
-
-    node a = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
-    node b = {{-2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
     
-    auto res = distance_greedy_search_insertmovesrotate(b, int(1e7), 18);
-    
-    auto result = get<pair<bool, vector<vector<int>>>> (res);
-    
-    cout << result.first << endl;
-    
-    show_path_insertmovesrotate(b, result.second);
-    
+//    node a = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+//    node b = {{-2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+//    node c = {{-2, -2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+//    
+////    node d = {{-1, -2, -2, -2, 1, -2, -2, -2, -2}, {1, 1, -2, -1, 2}};
+//    
+//    auto res = distance_greedy_search_insertmovesrotate(b, int(1e7), 18);
 //
-//    auto res = rank_insertmoves(a);
-////    auto res_truth = rank_insertmoves_truth(a);
+//    auto result = get<pair<bool, vector<vector<int>>>> (res);
 //    
-//    for(auto i: res){
-//        cout << i.first << ' ' << i.second.first << ' ' << i.second.second << endl;
-//    }
+//    cout << result.first << ' ' << result.second.size() << endl;
 //    
-//    cout << endl;
-//    for(auto i: res_truth){
-//        cout << i.first << ' ' << i.second << endl;
-//    }
-    
-//    for(auto i: res){
-//        cout << i.first << ' ' << i.second << endl;
-//    }
-    
-    
+//    show_path_insertmovesrotate(b, result.second);
     
     return 0;
 }

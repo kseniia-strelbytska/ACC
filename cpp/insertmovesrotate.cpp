@@ -63,6 +63,8 @@ void show_path_insertmovesrotate(node start, vector<vector<int>> path){
 }
 
 node insertmoverotate(node a, int idx, int tag, int rotation){
+    node backup = a;
+        
     if(tag == 2)
         a.second = inverse(a.second);
     else if(tag == 3)
@@ -114,6 +116,11 @@ node insertmoverotate(node a, int idx, int tag, int rotation){
     
     normalise(res.first);
     normalise(res.second);
+    
+    if(tag == 0 || tag == 2)
+        res.second = backup.second;
+    else
+        res.first = backup.first;
     
     return res;
 }
@@ -245,7 +252,7 @@ void add_insertmovesrotate(vector<pair<int, vector<int>>> &ans, node a, int tag,
         }
         
         cancelations += addition;
-        
+
         ans.push_back({2 * cancelations, {i, tag, rotation}});
     }
 }
@@ -299,7 +306,7 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
     
     // stores the parent and the previous move for each node
     // move is now defined by three numbers: index, tag, # of rotation
-//    map<node, pair<node, vector<int>>> parent;
+    map<node, pair<node, vector<int>>> parent;
     
     // 'closed set'; a set of all expanded nodes (shouldn't be expanded again)
     set<node> used;
@@ -310,25 +317,20 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
     
     int mx = 0;
     
-    node finish = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
-    node finish2 = {{-2, -2, -1, -1, -1, -1, 2, 1}, {1, -2, -1, 2, 1}};
+//    node finish = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+//    node finish2 = {{-2, -2, -1, -1, -1, -1, 2, 1}, {1, -2, -1, 2, 1}};
     
     while(!q.empty()){
         auto v = q.top();
         q.pop();
+        
+//        print(cout, v.second);
         
 //        auto *f = freopen("./output_cpp.txt", "a", stdout);
 //        print(v.second);
 //        fclose(f);
         
         mx = max(mx, (int)(v.second.first.size()) + (int)(v.second.second.size()));
-
-        if(v.second == finish || v.second == finish2){
-            trivial = true;
-            trivial_node = v.second;
-            
-            break;
-        }
         
         // if reached a trivial presentation
         if((int)(v.second.first.size()) + (int)(v.second.second.size()) == 2){
@@ -354,7 +356,7 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
                 trivial = true;
                 trivial_node = to;
                 
-//                parent[to] = {v.second, all_moves[move].second};
+                parent[to] = {v.second, all_moves[move].second};
                 
                 break;
             }
@@ -364,8 +366,8 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
                 
                 used.insert(to);
                 mp[to] = cost;
-                  
-//                parent[to] = {v.second, all_moves[move].second};
+                
+                parent[to] = {v.second, all_moves[move].second};
                 q.push({cost, to});
             }
         }
@@ -373,16 +375,16 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
         if((ll)(used.size()) >= max_nodes || trivial)
             break;
     }
-    
+        
     vector<vector<int>> path;
         
-//    if(trivial){
-//        // trace the path back from the trivial node to the starting node
-//        while(trivial_node != start){
-//            path.push_back(parent[trivial_node].second);
-//            trivial_node = parent[trivial_node].first;
-//        }
-//    }
+    if(trivial){
+        // trace the path back from the trivial node to the starting node
+        while(trivial_node != start){
+            path.push_back(parent[trivial_node].second);
+            trivial_node = parent[trivial_node].first;
+        }
+    }
 
     reverse(path.begin(), path.end());
     
