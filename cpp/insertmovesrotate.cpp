@@ -298,7 +298,7 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
     priority_queue<node_info, vector<node_info>, greater<node_info>> q;
     
     // 'open set'; stores {{k=presentation length, l=length from the start}, node}
-    q.push({{(int)(start.first.size()) + (int)(start.second.size()), 0}, start});
+    q.push({{min((int)(start.first.size()), (int)(start.second.size())), 0}, start});
     
     // stores best pair (k, l) for each node
     map<node, pair<int, int>> mp;
@@ -344,10 +344,10 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
         
         int neighbours_found = 0;
         
-        for(int move = 0; move < (int)all_moves.size() && neighbours_found < 40; move++){
+        for(int move = 0; move < (int)all_moves.size() && neighbours_found < 20; move++){
             auto to = insertmoverotate(v.second, all_moves[move].second[0], all_moves[move].second[1], all_moves[move].second[2]); // node, index, tag
             
-            pair<int, int> cost = {(int)(to.first.size()) + (int)(to.second.size()), v.first.second + 1};
+            pair<int, int> cost = {min((int)(to.first.size()), (int)(to.second.size())), v.first.second + 1};
             
             // if {to} hasn't been expanded and {cost} is better than current best for {to},
             // then push to the open set
@@ -394,6 +394,17 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
 }
 
 int get_distance(node a, node b){
+    a.first = get_smallest_rotation(a.first);
+    a.second = get_smallest_rotation(a.second);
+    
+    b.first = get_smallest_rotation(b.first);
+    b.second = get_smallest_rotation(b.second);
+    
+    normalise(a.first);
+    normalise(a.second);
+    normalise(b.first);
+    normalise(b.second);
+    
     vector<int> p1, p2;
     for(auto i: a.first)
         p1.push_back(i);
@@ -434,6 +445,9 @@ GreedyResult distance_greedy_search_insertmovesrotate(node start, int max_nodes,
     map<node, pair<int, int>> mp;
     mp[start] = (*q.begin()).first;
     
+    map<node, int> depth;
+    depth[start] = 0;
+    
     // stores the parent and the previous move for each node
     // move is now defined by three numbers: index, tag, # of rotation
 //    map<node, pair<node, vector<int>>> parent;
@@ -452,7 +466,8 @@ GreedyResult distance_greedy_search_insertmovesrotate(node start, int max_nodes,
     
     int distance = min(get_distance(start, finish), get_distance(start, finish2));
     
-    q.insert({{distance, 0}, start});
+    q.insert({{distance + min(start.first.size(), start.second.size()), 0}, start});
+//    q.insert({{min(start.first.size(), start.second.size()), 0}, start});
 
     while(!q.empty()){
         auto v = *q.begin();
@@ -466,12 +481,12 @@ GreedyResult distance_greedy_search_insertmovesrotate(node start, int max_nodes,
         
         mx = max(mx, (int)(v.second.first.size()) + (int)(v.second.second.size()));
 
-        if(v.second == finish || v.second == finish2){
-            trivial = true;
-            trivial_node = v.second;
-            
-            break;
-        }
+//        if(v.second == finish || v.second == finish2){
+//            trivial = true;
+//            trivial_node = v.second;
+//            
+//            break;
+//        }
         
         // if reached a trivial presentation
         if((int)(v.second.first.size()) + (int)(v.second.second.size()) == 2){
@@ -485,12 +500,13 @@ GreedyResult distance_greedy_search_insertmovesrotate(node start, int max_nodes,
         
         int neighbours_found = 0;
         
-        for(int move = 0; move < (int)all_moves.size() && neighbours_found < 80; move++){
+        for(int move = 0; move < (int)all_moves.size() && neighbours_found < 20; move++){
             auto to = insertmoverotate(v.second, all_moves[move].second[0], all_moves[move].second[1], all_moves[move].second[2]); // node, index, tag
             
             int distance = min(get_distance(to, finish), get_distance(to, finish2));
             
-            pair<int, int> cost = {distance, v.first.second + 1};
+            pair<int, int> cost = {distance + min(to.first.size(), to.second.size()), v.first.second + 1};
+//            pair<int, int> cost = {min(to.first.size(), to.second.size()), v.first.second + 1};
             
             // if {to} hasn't been expanded and {cost} is better than current best for {to},
             // then push to the open set
@@ -504,7 +520,42 @@ GreedyResult distance_greedy_search_insertmovesrotate(node start, int max_nodes,
                 break;
             }
             
-            if((int)(to.first.size()) < max_relator_length && (int)(to.second.size()) < max_relator_length && !used.count(to)){
+            if(to.first.size() == 1 || to.second.size() == 1){
+                /*
+                 We want to prune off nodes where one of the relators is the generator (or its inverse)
+                 And the other relator comprises of other generator to some power.
+                 EG
+                 -2 -2 -1 2 2 2 -1 2| 2
+                 is clearly not trivial, but the search still tries to apply many operations on r1
+                 */
+                if(to.second.size() == 1)
+                    swap(to.first, to.second);
+                
+                int cnt = 0;
+                
+                for(auto i: to.second){
+                    if(abs(i) == abs(to.first[0]))
+                        continue;
+                    
+                    if(i < 0)
+                        cnt--;
+                    else
+                        cnt++;
+                }
+                
+                if(cnt != 1)
+                    continue;
+                else{
+                     // add application of moves to remove relators physically.
+                    trivial = true;
+                    trivial_node = to;
+                    
+                    break;
+                }
+            }
+            
+            if(depth[v.second] + 1 < 100 && (int)(to.first.size()) < max_relator_length && (int)(to.second.size()) < max_relator_length && !used.count(to)){
+                depth[to] = depth[v.second] + 1;
                 neighbours_found += 1;
                 
                 used.insert(to);

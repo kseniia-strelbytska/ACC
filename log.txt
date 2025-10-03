@@ -167,3 +167,24 @@ Need to ensure I didn't make any bugs in the code: Should run tests on datasets 
 30/09/25 
 Ran     auto res = greedy_search_insertmovesrotate(b, int(1e7), 18); exploring top 40 neighbours. Tried to find path from node b = {{-2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}}; to node finish = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}}; or node finish2 = {{-2, -2, -1, -1, -1, -1, 2, 1}, {1, -2, -1, 2, 1}}; or trivial
 RAM overflowed.. Terminated after 5 minutes of execution. 
+
+02/10/25
+I added pruning of nodes
+
+I tried this heuristic: 
+q.insert({{min(start.first.size(), start.second.size()), 0}, start})
+
+But this lowered entropy of the presentations: they all had second relator {-1, -2, 1, 2, -1}, when ran with start node {{-2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}}. 
+
+Algorithm checks a lot of presentations of type 
+2 -1 -2 | 2 2 2 1 -2 -1 2 1 1 -2 -1 -1 2 -1 -2
+2 -1 -2 | 2 2 2 1 -2 -1 2 1 1 -2 -1 -1 2 -1 -1 -2
+2 -1 -2 | 2 2 2 1 -2 -1 2 1 1 -2 -1 2 -1 -1 -2
+2 -1 -2 | 2 2 2 1 -2 -1 2 1 1 -2 -1 2 -1 -1 -1 -2
+2 -1 -2 | -1 -1 -1 -1 -1 -1 2 1 2 -1 2 1 1 -2 1
+2 -1 -2 | -1 -1 -1 -1 -1 -1 2 1 2 -1 2 1 1 -2 1 1
+2 -1 -2 | -1 -1 -1 -1 -1 2 1 1 2 -1 2 1 1 -2 1
+2 -1 -2 | -1 -1 -1 -1 -1 2 1 2 -1 -1 2 1 1 -2 1
+2 -1 -2 | -1 -1 -1 -1 -1 2 1 2 -1 2 1 -2 1
+2 -1 -2 | -1 -1 -1 -1 -1 2 1 2 -1 2 1 1 -2 1 1
+I think it is going too deep. Should cut depth. 

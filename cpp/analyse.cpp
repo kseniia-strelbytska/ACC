@@ -31,6 +31,7 @@ void analyse(vector<node> presentations, string sol_path){
         int n, ind = -1;
         
         vector<vector<node>> paths;
+        vector<vector<vector<int>>> all_moves;
         vector<int> lens;
         
         while(stream >> n){
@@ -45,6 +46,8 @@ void analyse(vector<node> presentations, string sol_path){
                 
                 moves.push_back({a, b, c});
             }
+            
+            all_moves.push_back(moves);
             
             node start = presentations[ind];
             
@@ -68,16 +71,29 @@ void analyse(vector<node> presentations, string sol_path){
             
             path_length[n]++;
         }
-        
-        ofstream out("/Users/kseniia/Desktop/programming/Projects/ACC/results/solved_paths_rotate_MS_pathlenhistogram.txt");
-        
-        for(int i = 0; i < 300; i++){
-            out << int(presentations[i].first.size()) + int(presentations[i].second.size()) << ' ' << lens[i] << endl;
-        }
-        
-        out.close();
-        
         stream.close();
+
+//        ofstream out("/Users/kseniia/Desktop/programming/Projects/ACC/results/solved_paths_rotate_MS_pathlenhistogram.txt");
+//        
+//        for(int i = 0; i < 400; i++){
+//            out << int(presentations[i].first.size()) + int(presentations[i].second.size()) << ' ' << lens[i] << endl;
+//        }
+//        
+//        out.close();
+//        
+//        ofstream out2("/Users/kseniia/Desktop/programming/Projects/ACC/results/solved_paths_rotate_MS_explicit_paths_smallestrotation.txt");
+//        
+//        for(auto i: paths){
+//            out2 << (int)(i.size()) - 1 << endl;
+//            
+//            for(auto j: i){
+//                j.first = get_smallest_rotation(j.first);
+//                j.second = get_smallest_rotation(j.second);
+//                print(out2, j);
+//            }
+//        }
+//        out2.close();
+        // CHANGE: FOR SMALLEST ROTATIONS
         
         vector<pair<int, node>> nodes_s;
         vector<pair<int, deque<int>>> relators_s;
@@ -91,21 +107,45 @@ void analyse(vector<node> presentations, string sol_path){
         sort(nodes_s.rbegin(), nodes_s.rend());
         sort(relators_s.rbegin(), relators_s.rend());
         
-//        ofstream out("/Users/kseniia/Desktop/programming/Projects/ACC/results/solved_paths_rotate_MS_analyse.txt");
-//        
-//        for(int i = 0; i < 40; i++){
-//            out << nodes_s[i].first << ' ';
-//            print(out, nodes_s[i].second);
-//        }
-//        
-//        out << endl;
-//        for(int i = 0; i < 40; i++){
-//            out << relators_s[i].first << ' ';
-//            print(out, relators_s[i].second);
-//        }
-//        
-//        out.close();
+        ofstream out3("/Users/kseniia/Desktop/programming/Projects/ACC/results/solved_paths_rotate_MS_analyse.txt");
         
+        for(int i = 0; i < 40; i++){
+            out3 << nodes_s[i].first << ' ';
+            print(out3, nodes_s[i].second);
+        }
+        
+        out3 << endl;
+        for(int i = 0; i < 40; i++){
+            out3 << relators_s[i].first << ' ';
+            print(out3, relators_s[i].second);
+        }
+        
+        out3.close();
+        
+//        ofstream out4("/Users/kseniia/Desktop/programming/Projects/ACC/results/solved_paths_rotate_MS_explicit_paths_plus_moves_smallestrotation.txt");
+//        
+//        int path_ind = -1;
+//        for(auto i: paths){
+//            path_ind++;
+//            
+//            out4 << (int)(i.size()) - 1 << endl;
+//
+//            int move_ind = -2;
+//            for(auto j: i){
+//                move_ind++;
+//                
+//                if(move_ind >= 0){
+//                    for(auto p: all_moves[path_ind][move_ind])
+//                        out4 << p << ' ';
+//                    out4 << endl;
+//                }
+//                
+//                j.first = get_smallest_rotation(j.first);
+//                j.second = get_smallest_rotation(j.second);
+//                print(out4, j);
+//            }
+//        }
+//        out4.close();
     }
     else{
         cout << "Error when opening " << sol_path << endl;

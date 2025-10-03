@@ -88,7 +88,7 @@ void evaluate(GreedyFn greedy_search_variant, vector<node> presentations, string
         
         cout << "Solved: " << solved << "/" << ind << endl;
         
-        if(ind >= 300)
+        if(ind >= 400)
             break;
     }
     cout << "Result: " << solved_small << "/400 " << solved_large << "/17" << endl;
