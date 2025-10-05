@@ -6,10 +6,11 @@
 - [x] fix file path handling
 - [x] check python implementation (what informations do the nodes store in the heap? When does ACMove cut off branching?) 
 - [ ] fix data structure clearance in greedy_search
-- [ ] test insert moves algorithm
+- [x] test insert moves algorithm
 - [x] implement greedy search with insert moves
+- [ ] test meet-in-the-middle on neighbouring nodes in trivialisation paths 
 
 ## Algorithm Improvements
 
-- [ ] insert moves (ranking algorithm and implementation)
+- [x] insert moves (ranking algorithm and implementation)
 - [ ] m-transformations (ranking algorithm and implementation)

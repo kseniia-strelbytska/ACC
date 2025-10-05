@@ -169,12 +169,13 @@ Ran     auto res = greedy_search_insertmovesrotate(b, int(1e7), 18); exploring t
 RAM overflowed.. Terminated after 5 minutes of execution. 
 
 02/10/25
+Tried to see patterns in exploration / trivialisation of MSn.
 I added pruning of nodes
 
 I tried this heuristic: 
 q.insert({{min(start.first.size(), start.second.size()), 0}, start})
 
-But this lowered entropy of the presentations: they all had second relator {-1, -2, 1, 2, -1}, when ran with start node {{-2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}}. 
+But this lowered entropy of the presentations explored: they all had second relator {-1, -2, 1, 2, -1}, when ran with start node {{-2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}}. 
 
 Algorithm checks a lot of presentations of type 
 2 -1 -2 | 2 2 2 1 -2 -1 2 1 1 -2 -1 -1 2 -1 -2
@@ -188,3 +189,36 @@ Algorithm checks a lot of presentations of type
 2 -1 -2 | -1 -1 -1 -1 -1 2 1 2 -1 2 1 -2 1
 2 -1 -2 | -1 -1 -1 -1 -1 2 1 2 -1 2 1 1 -2 1 1
 I think it is going too deep. Should cut depth. 
+
+04/10/25
+Similarity metrics. 
+Proposition 1. Q-gram cyclic similarity metric 
+	To compare presentations p1 <r1, r2> and p’1 <r’1, r’2>, we will be considering respective pair of relators separately. Let s1 = |r1| + |r’1| (total length of the first relators) and similarly s2 = |r2| + |r’2|. Then similarity(p1, p2) = s1/(s1 + s2) * qgramdistance(r1, r’1) + s2/(s1 + s2) * qgramdistance(r2, r’2) 
+	Qgramdistance (a, b) is calculated as follows:
+	For each of an and b separately, q-gram multisets are constructed (call them Ma and Mb respectively). WLOG, consider relator a. We consider each 5 <= q <= 11 and consider all substrings, including cyclic substrings, of length q and insert them into Ma. 
+	Then we calculate the multiset similarity on between Ma and Mb using Jaccard similarity. 
+
+	Justification: insert-rotate moves have a block-changing nature, i.e. the changes made are not discrete by generators, unlike conjugation moves. Cyclic q-grams account for rotations. Jaccard similarity produces score in [0, 1] which means similarity is independent of string length. i.e. longer strings will not have higher similarity than shorter simply because they have more q-grams. 
+	Considerations: 
+	-	longer matching substrings should have more weight in similarity, because there is a smaller chance this structure was created “by chance”. Should we give weight to substrings? 
+	-	AC2 moves allow for inverses. Should we consider an inverse of any substring equivalent to that substring in the multiset?
+
+Proposition 2. Edit-distance with ‘weighted tokenisation’
+	To compare presentations p1 <r1, r2> and p’1 <r’1, r’2>, we will be considering respective pair of relators separately. Let s1 = |r1| + |r’1| (total length of the first relators) and similarly s2 = |r2| + |r’2|. Then similarity(p1, p2) = s1/(s1 + s2) * tokeneditdistance(r1, r’1) + s2/(s1 + s2) * tokeneditdistance(r2, r’2) 
+	tokeneditdistance(a, b) is calculated as follows: 
+	Our aim is to divide an and b into substrings (i.e. tokenise them), so that the weighted edit distance between these ordered sets of substrings would be highest. Define dp[I][j] as the highest similarity when considering a[0…I] and b[0…j]. Let L be the largest L, such that a[I - L + 1…I] = b[j - L + 1…j]. dp[I][j] = max(max(k^2 + dp[I - k][j - k]), over 1 <= k <= L, dp[I - 1][j], dp[I][j - 1]), i.e. we try every 1 <= k <= L as a length for the token. Notice that k adds k^2 to the similarity score, i.e. the relationship between substring (token) weight and influence on similarity is quadratic. 
+	Now, dp[|a| - 1][|b| - 1] is a relative measure of similarity between the two strings, however it is not normalised in the sense that higher |a| and |b| will naturally yield higher similarity, making it hard to compare two pairs of relators. To solve that, the final similarity score is dp[|a| - 1][|b| - 1] / (|a| + |b|) ^ 2
+
+	Justification. Unlike classical AC moves, insert-rotate moves 1. Give higher weight to longer matching substrings and 2. Consider the relative order of common substrings. 
+	Considerations. Doesn’t account for cyclicality.
+
+Considerations (all similarity metrics): nodes like MSn, MSn+1 will be highly similar, but there isn’t a clear path to go from one node to another. Similarly, no known trivialisation for the neighbouring nodes in conjecture 2.
+
+Neighbourhood exploration. 
+
+Similarity metric will be used in meet-in-the-middle recursive pathfinding function. 
+Should try to use standard edit distance and see how it performs. 
+
+05/10/25 
+Ran tests on insert-rotate guided exploration, I think move conversion works well, but:
+I took two neighbouring nodes (A and B) from an arbitrary MSn trivialisation path. The search didn't find the path between them, even though it consisted of just 2-3 insert-rotate moves. For some reason, when starting from MSn, the same neighbourhood exploration algorithm (just the greedy search with insert-rotate moves) can find a path start -> A -> B -> trivial, but when started from A, it cannot find a path to B. It can, however, find a trivialisation path. Does it find a more optimal path? Need to fix (and understand what's wrong). 

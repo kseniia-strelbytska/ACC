@@ -1,0 +1,397 @@
+#include "header.h"
+
+void add_qgrams(multiset<deque<int>> &qgrams, deque<int> relator, int q){
+    if(q > (int)(relator.size()))
+        return;
+    
+    deque<int> sub; // current substring
+    
+    for(int i = 0; i < relator.size(); i++){
+        sub.push_back(relator[i]);
+        
+        if((int)(sub.size()) > q)
+            sub.pop_front();
+        
+        if((int)(sub.size()) == q)
+            qgrams.insert(sub);
+    }
+    
+    // now consider cyclical qgrams
+    // {sub_total} = # of terms of the whole relator considered
+    // we shouldn't allow {sub_total} > relator.size()
+    int sub_total = (int)(sub.size());
+    
+    // we shouldn't allow popped >= initial_len, as that means qgram is no longer cyclical
+    int initial_len = qgrams.size(), popped = 0;
+    
+    for(int i = 0; i < relator.size() && sub_total <= relator.size() && popped < initial_len; i++){
+        // check whether last term of {sub}} cancels with the current term
+        if(!sub.empty() && abs(sub.back()) == abs(relator[i]) && sub.back() != relator[i]){
+            sub.pop_back();
+            
+            sub_total++;
+            // we know that the popped term must have come from inital {sub},
+            // as no two neighbouring terms in {relator} cancel each other
+            popped++;
+            
+            continue;
+        }
+        
+        sub.push_back(relator[i]);
+        sub_total++;
+           
+        if(int(sub.size()) > q){
+            popped++;
+            sub.pop_front();
+        }
+        
+        if(sub_total > int(relator.size()) || popped == initial_len)
+           break;
+        
+        if((int)(sub.size()) == q)
+            qgrams.insert(sub);
+    }
+}
+
+long double qgram_distance(deque<int> a, deque<int> b){
+    multiset<deque<int>> ma, mb;
+    
+    for(int q = 5; q <= 11; q++){
+        add_qgrams(ma, a, q);
+        add_qgrams(mb, b, q);
+    }
+    
+    multiset<deque<int>> m_intersection, m_union;
+    set_intersection(ma.begin(), ma.end(), mb.begin(), mb.end(), inserter(m_intersection, m_intersection.begin()));
+    set_union(ma.begin(), ma.end(), mb.begin(), mb.end(), inserter(m_union, m_union.begin()));
+
+    long double j = 1;
+        
+    if(!m_union.empty())
+        j = (long double)(m_intersection.size()) / (long double)(m_union.size());
+    else if(!m_intersection.empty())
+        j = 1.0 / (long double)(m_intersection.size());
+        
+    return j;
+}
+
+long double qgram_distance(node p1, node p2){
+    long double s1 = (long double)(p1.first.size()) + (long double)(p2.first.size());
+    long double s2 = (long double)(p1.second.size()) + (long double)(p2.second.size());
+    
+    long double res1 = qgram_distance(p1.first, p2.first);
+    long double res2 = qgram_distance(p1.second, p2.second);
+    
+    long double distance = s1 / (s1 + s2) * res1 + s2 / (s1 + s2) * res2;
+    
+    return distance;
+}
+
+// max_nodes = max size of neighbourhood
+pair<vector<node>, map<node, pair<node, vector<int>>>> neighbourhood_greedy_search_insertmovesrotate(node start, int max_nodes, int max_relator_length){
+    priority_queue<node_info, vector<node_info>, greater<node_info>> q;
+    
+    // 'open set'; stores {{k=presentation length, l=length from the start}, node}
+    q.push({{min((int)(start.first.size()), (int)(start.second.size())), 0}, start});
+    
+    // stores best pair (k, l) for each node
+    map<node, pair<int, int>> mp;
+    mp[start] = q.top().first;
+    
+    // stores the parent and the previous move for each node
+    // move is now defined by three numbers: index, tag, # of rotation
+    map<node, pair<node, vector<int>>> parent;
+    
+    // 'closed set'; a set of all expanded nodes (shouldn't be expanded again)
+    set<node> used;
+    int expanded = 0;
+    bool trivial = false;
+    
+    node trivial_node;
+    
+    int mx = 0;
+    
+    while(!q.empty()){
+        auto v = q.top();
+        q.pop();
+        
+        print(cout, v.second);
+                
+        mx = max(mx, (int)(v.second.first.size()) + (int)(v.second.second.size()));
+        
+        // if reached a trivial presentation
+        if((int)(v.second.first.size()) + (int)(v.second.second.size()) == 2){
+            trivial = true;
+            trivial_node = v.second;
+                        
+            break;
+        }
+        
+        auto all_moves = rank_insertmovesrotate(v.second);
+        
+        int neighbours_found = 0;
+        
+        for(int move = 0; move < (int)all_moves.size() && neighbours_found < 20; move++){
+            auto to = insertmoverotate(v.second, all_moves[move].second[0], all_moves[move].second[1], all_moves[move].second[2]); // node, index, tag
+            
+            pair<int, int> cost = {min((int)(to.first.size()), (int)(to.second.size())), v.first.second + 1};
+            
+            // if {to} hasn't been expanded and {cost} is better than current best for {to},
+            // then push to the open set
+            
+            if((int)(to.first.size()) + (int)(to.second.size()) == 2){
+                trivial = true;
+                trivial_node = to;
+                
+                parent[to] = {v.second, all_moves[move].second};
+
+                used.insert(to);
+                                
+                break;
+            }
+            
+            if((int)(to.first.size()) < max_relator_length && (int)(to.second.size()) < max_relator_length && !used.count(to)){
+                neighbours_found += 1;
+                
+                used.insert(to);
+                mp[to] = cost;
+                
+                parent[to] = {v.second, all_moves[move].second};
+                q.push({cost, to});
+            }
+        }
+        
+        if((ll)(used.size()) >= max_nodes || trivial)
+            break;
+    }
+    
+    cout << trivial << endl;
+    
+    vector<node> neighbourhood;
+    
+    for(auto i: used)
+        neighbourhood.push_back(i);
+        
+    // parent is essential to be able to reconstruct the path
+    return {neighbourhood, parent};
+}
+
+// recreates path from a -> b
+pair<vector<node>, deque<vector<int>>> get_path(map<node, pair<node, vector<int>>> &parent, node a, node b){
+    vector<node> nodes = {b};
+    deque<vector<int>> path;
+    
+    while(b != a){
+        path.push_back(parent[b].second);
+        b = parent[b].first;
+        
+        nodes.push_back(b);
+    }
+    
+    reverse(nodes.begin(), nodes.end());
+    reverse(path.begin(), path.end());
+    
+    return {nodes, path};
+}
+
+// we know start -> move -> finish
+// we need to find start <- movereverse <- finish
+// and return both paths in terms of the original AC' moves
+pair<deque<int>, deque<int>> convert_moves(node start, node finish, vector<int> move){
+    // we know the sequence of moves: index, tag, rotate.
+    
+    deque<int> moves, reversed_moves;
+    
+    // mapping of conjugation to AC' moves
+    map<int, int> conjugation_first;
+    conjugation_first[-2] = 5;
+    conjugation_first[-1] = 11;
+    conjugation_first[1] = 7;
+    conjugation_first[2] = 9;
+    
+    map<int, int> conjugation_second;
+    conjugation_second[-2] = 6;
+    conjugation_second[-1] = 4;
+    conjugation_second[1] = 8;
+    conjugation_second[2] = 10;
+    
+    int tag = move[1], rotation = move[2];
+    
+    cout << move[0] << ' ' << tag << ' ' << rotation << endl;
+    
+    if(tag % 2 == 0){
+        // we insert start.second into start.first
+        
+        // we will convert an insert-rotate move into a set of simple AC' moves (the 12 ones used in the classical greedy search)
+        
+        vector<int> terms;
+        
+        for(int rotate = 0; rotate < rotation; rotate++){ // perform rotations as needed
+            // to rotate one last term we apply a conjugation = that term
+            terms.push_back(start.second.back());
+            
+            moves.push_back(conjugation_second[start.second.back()]);
+            reversed_moves.push_back(conjugation_second[-start.second.back()]);
+            
+            start.second.push_front(start.second.back()); // rotate by one to the right
+            start.second.pop_back();
+        }
+                
+        // step 1: cyclic shift to the right = conjugation
+        for(int i = (int)(start.first.size()) - 1; i > move[0]; i--){
+            moves.push_back(conjugation_first[start.first[i]]);
+            reversed_moves.push_back(conjugation_first[-start.first[i]]);
+        }
+        
+        // step 2: multiplication by a.second (rotated as needed)
+        // if tag=2 (inverse on a.second) type 1, else type 3
+        moves.push_back((tag == 2 ? 1 : 3));
+        reversed_moves.push_back((tag == 2 ? 3 : 1));
+        
+        // step 3: cyclic shift to the left (i.e. shifting back to initial)
+        for(int i = move[0] + 1; i < (int)(start.first.size()); i++){
+            moves.push_back(conjugation_first[-start.first[i]]);
+            reversed_moves.push_back(conjugation_first[start.first[i]]);
+        }
+        
+        // step 4: return the a.second back to its original form (cyclic shifts to the left)
+        for(int term = (int)(terms.size()) - 1; term >= 0; term--){
+            moves.push_back(conjugation_second[-terms[term]]);
+            reversed_moves.push_back(conjugation_second[terms[term]]);
+        }
+    }
+    else{
+        // we insert start.first into start.second
+        
+        // we will convert an insert-rotate move into a set of simple AC' moves (the 12 ones used in the lassical greedy search)
+        
+        vector<int> terms;
+        
+        for(int rotate = 0; rotate < rotation; rotate++){ // perform rotations as needed
+            // to rotate one last term we apply a conjugation = that term
+            terms.push_back(start.first.back());
+            
+            moves.push_back(conjugation_first[start.first.back()]);
+            reversed_moves.push_back(conjugation_first[-start.first.back()]);
+            
+            start.first.push_front(start.first.back()); // rotate by one to the right
+            start.first.pop_back();
+        }
+        
+        // step 1: cyclic shift to the right = conjugation
+        for(int i = (int)(start.second.size()) - 1; i > move[0]; i--){
+            moves.push_back(conjugation_second[start.second[i]]);
+            reversed_moves.push_back(conjugation_second[-start.second[i]]);
+        }
+        
+        // step 2: multiplication by a.first (rotated as needed)
+        // if tag=3 (inverse on a.second) type 2, else type 0
+        moves.push_back((tag == 3 ? 2 : 0));
+        reversed_moves.push_back((tag == 3 ? 0 : 2));
+        
+        // step 3: cyclic shift to the left (i.e. shifting back to initial)
+        for(int i = move[0] + 1; i < (int)(start.second.size()); i++){
+            moves.push_back(conjugation_second[-start.second[i]]);
+            reversed_moves.push_back(conjugation_second[start.second[i]]);
+        }
+        
+        // step 4: return the a.first back to its original form (cyclic shifts to the left)
+        for(int term = (int)(terms.size()) - 1; term >= 0; term--){
+            moves.push_back(conjugation_first[-terms[term]]);
+            reversed_moves.push_back(conjugation_first[terms[term]]);
+        }
+    }
+    
+    reverse(reversed_moves.begin(), reversed_moves.end());
+    
+    return {moves, reversed_moves};
+}
+
+pair<bool, deque<int>> guided_exploration(node start, node finish, int depth){
+    if(depth >= 3)
+        return {false, {}};
+    
+    auto neigh1 = neighbourhood_greedy_search_insertmovesrotate(start, (int)(1e6), 18);
+    auto neigh2 = neighbourhood_greedy_search_insertmovesrotate(finish, (int)(1e6), 18);
+    
+    vector<pair<long double, pair<node, node>>> candidates;
+    
+    for(auto i: neigh1.first){
+        for(auto j: neigh2.first){
+            if(i == j){
+                // p1.first = nodes, p1.second = path
+                auto p1 = get_path(neigh1.second, start, i);
+                auto p2 = get_path(neigh2.second, finish, j);
+                                
+                deque<int> path;
+                // converting start -> i in terms of AC' moves
+                for(int node = 0; node < int(p1.first.size()) - 1; node++){
+                    auto moves = convert_moves(p1.first[node], p1.first[node + 1], p1.second[node]);
+                    
+                    for(auto move: moves.first)
+                        path.push_back(move);
+                }
+                
+                // converting j -> finish in terms of AC' moves
+                // we use the reversed_moves from conver_moves function
+                for(int node = int(p2.first.size()) - 2; node >= 0; node--){
+                    auto moves = convert_moves(p2.first[node], p2.first[node + 1], p2.second[node]);
+                    
+                    for(auto move: moves.second)
+                        path.push_back(move);
+                }
+                
+                return {true, path};
+            }
+            
+//            long double distance = qgram_distance(i, j);
+//            
+//            candidates.push_back({distance, {i, j}});
+        }
+    }
+    
+    exit(0);
+    
+    sort(candidates.rbegin(), candidates.rend());
+    
+    // we can now try to select 10-20 most similar pairs
+    // and run guided_exploration for them
+    
+    for(int i = 0; i < min((int)(candidates.size()), 10); i++){
+        auto result = guided_exploration(candidates[i].second.first, candidates[i].second.second, depth + 1);
+        
+        if(result.first == true){
+            // found a path!
+            
+            // describing moves
+            
+            deque<int> path;
+            auto p1 = get_path(neigh1.second, start, candidates[i].second.first);
+            auto p2 = get_path(neigh2.second, finish, candidates[i].second.second);
+            
+            // converting start -> i in terms of AC' moves
+            for(int node = 0; node < int(p1.first.size()) - 1; node++){
+                auto moves = convert_moves(p1.first[node], p1.first[node + 1], p1.second[node]);
+                
+                for(auto move: moves.first)
+                    path.push_back(move);
+            }
+            
+            for(auto move: result.second)
+                path.push_back(move);
+            
+            // converting j -> finish in terms of AC' moves
+            // we use the reversed_moves from conver_moves function
+            for(int node = int(p2.first.size()) - 2; node >= 0; node--){
+                auto moves = convert_moves(p2.first[node], p2.first[node + 1], p2.second[node]);
+                
+                for(auto move: moves.second)
+                    path.push_back(move);
+            }
+            
+            return {true, path};
+        }
+    }
+    
+    return {false, {}};
+}

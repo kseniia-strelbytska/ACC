@@ -25,6 +25,23 @@ void timed_evaluation(char **argv, GreedyFn greedy_search_variant){
 }
 
 int main(int argc, char **argv){
+    node p1 = {{-2, -2, 1, 2, -1, -2, 1}, {-2, -2, -2, -2, 1, -2, -2, -2, 1, 1}};
+    node p2 = {{-2, -2, 1, 2, -1, -2, 1}, {-2, -2, -2, 1, -2, -1, -2, 1, 1}};
+    node p3 = {{-2, -2, 1, 2, -1, -2, 1}, {-2, -2, -1, -2, 1, 1}};
+    node p4 = {{-2, -2, 1, 2, 2, 2, -1}, {-2, -2, -2, 1, 2, -1, -2, 1}};
+    
+    auto result = guided_exploration(p1, p3, 0);
+    
+    cout << fixed << setprecision(10) << result.first << endl;
+    
+    vector<int> ans;
+    for(auto i: result.second)
+        ans.push_back(i);
+    
+    show_path(p1, ans);
+    
+    return 0;
+    
     string dir_path = argv[1];
     
     auto presentations = load_presentations_MS(dir_path + "/all_presentations.txt");
@@ -49,20 +66,20 @@ int main(int argc, char **argv){
 //    timed_evaluation(argv, greedy_search_insertmovesrotate);
 //    timed_evaluation(argv, greedy_search_insertmovesrotate);
     
-    node a = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
-    node b = {{-2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
-    node c = {{-2, -2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
-    
-//    node d = {{-1, -2, -2, -2, 1, -2, -2, -2, -2}, {1, 1, -2, -1, 2}};
-    
-    auto res = distance_greedy_search_insertmovesrotate(b, int(1e7), 18);
-
-    auto result = get<pair<bool, vector<vector<int>>>> (res);
-    
-    cout << result.first << ' ' << result.second.size() << endl;
-    
-    show_path_insertmovesrotate(b, result.second);
-    
+//    node a = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+//    node b = {{-2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+//    node c = {{-2, -2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+//    
+////    node d = {{-1, -2, -2, -2, 1, -2, -2, -2, -2}, {1, 1, -2, -1, 2}};
+//    
+//    auto res = distance_greedy_search_insertmovesrotate(b, int(1e7), 18);
+//
+//    auto result = get<pair<bool, vector<vector<int>>>> (res);
+//    
+//    cout << result.first << ' ' << result.second.size() << endl;
+//    
+//    show_path_insertmovesrotate(b, result.second);
+//    
     return 0;
 }
 

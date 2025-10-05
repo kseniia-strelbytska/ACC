@@ -141,3 +141,19 @@ GreedyResult distance_greedy_search_insertmovesrotate(node start, int max_nodes,
 deque<int> get_smallest_rotation(deque<int> a);
 
 void analyse(vector<node> presentations, string sol_path);
+
+// ----------similarity.cpp----------
+
+void add_qgrams(multiset<deque<int>> &qgrams, deque<int> relator, int q);
+
+long double qgram_distance(deque<int> a, deque<int> b);
+
+long double qgram_distance(node p1, node p2);
+
+pair<vector<node>, map<node, pair<node, vector<int>>>> neighbourhood_greedy_search_insertmovesrotate(node start, int max_nodes, int max_relator_length);
+
+pair<vector<node>, deque<vector<int>>> get_path(map<node, pair<node, vector<int>>> &parent, node a, node b);
+
+pair<deque<int>, deque<int>> convert_moves(node start, node finish, vector<int> move);
+
+pair<bool, deque<int>> guided_exploration(node start, node finish, int depth);
