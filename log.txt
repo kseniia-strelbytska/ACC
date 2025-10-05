@@ -190,6 +190,41 @@ Algorithm checks a lot of presentations of type
 2 -1 -2 | -1 -1 -1 -1 -1 2 1 2 -1 2 1 1 -2 1 1
 I think it is going too deep. Should cut depth. 
 
+03/10/25
+Implemented the processing.py analysis, which divided the first 400 MS trivialisation paths into easy/hard. For each initial presentation length, easy instances have path_length <= median, hard have path_length > median. 
+
+Tried to find differences in structure. Alternation index (how many terms have next term (cyclically) of a different generator type) is same for both. The most common transition is move 3 followed by move 0, 2nd most common is move 0 followed by move 3. Also extracted the most common q-gram for both easy / hard cases. The most common ones are very similar. In fact, out of the 10 most commonly occurring, 6 are the same. 
+
+Easy 
+[248, (-2, -2, -1, 2, 2, 1)] match0
+[238, (-2, -2, -2, -1, 2, 2, 1)] match1
+[173, (-2, -2, -2, -1, 2, 2)] match3
+[157, (-2, -2, -1, 2, 1)] match4
+[132, (-2, -1, 2, 2, 1)]
+[124, (-2, -1, 2, 2, 2, 1)] match2
+[118, (-2, -2, -1, 2, 2, 2, 1)] match5
+[108, (-2, -2, -2, -1, 2, 2, 2, 1)]
+[108, (-2, -2, -2, -2, -1, 2, 2, 2, 1)]
+Hard 
+[76, (-2, -2, -2, -2, -2, -1)]
+[705, (-2, -2, -1, 2, 2, 1)] match0
+[656, (-2, -2, -2, -1, 2, 2, 1)] match1
+[606, (-2, -1, 2, 2, 2, 1)] match2
+[543, (-2, -1, 2, 1, -2, -1)]
+[542, (-2, -2, -1, 2, 2, 2, 1)] match5
+[528, (-2, -2, -2, -1, 2, 2)]match3
+[522, (-2, -2, -1, 2, 1, -2, -1)]
+[520, (-2, 1, 2, -1, -2, 1)]
+[498, (-2, -2, 1, 2, -1, -2, 1)]
+[490, (-2, -2, -1, 2, 1)] match4
+
+Combined most frequent:
+[[953, (-2, -2, -1, 2, 2, 1)], [894, (-2, -2, -2, -1, 2, 2, 1)], [730, (-2, -1, 2, 2, 2, 1)], [701, (-2, -2, -2, -1, 2, 2)], [660, (-2, -2, -1, 2, 2, 2, 1)], [647, (-2, -2, -1, 2, 1)], [551, (-2, -1, 2, 1, -2, -1)], [530, (-2, -2, -1, 2, 1, -2, -1)], [526, (-2, 1, 2, -1, -2, 1)], [512, (-2, -1, 2, 2, 1)]]
+
+These might be useful for similarity metrics. 
+
+To do: think about how similarity metrics can be used. 
+
 04/10/25
 Similarity metrics. 
 Proposition 1. Q-gram cyclic similarity metric 

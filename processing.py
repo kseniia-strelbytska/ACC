@@ -1,4 +1,3 @@
-
 def extract_paths():
     file_path = '/Users/kseniia/Desktop/programming/Projects/ACC/results/solved_paths_rotate_MS_explicit_paths_smallestrotation.txt'
 
@@ -190,6 +189,9 @@ def get_frequency(case):
         all.append([seq[sequence], sequence])
 
     all.sort(reverse = True)
+    
+    for i in range(10):
+        print(all[i])
 
     return seq, all 
 
