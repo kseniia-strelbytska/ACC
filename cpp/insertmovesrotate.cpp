@@ -295,6 +295,8 @@ vector<pair<int, vector<int>>> rank_insertmovesrotate(node a){
 }
 
 GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_relator_length){
+    node a = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+
     priority_queue<node_info, vector<node_info>, greater<node_info>> q;
     
     // 'open set'; stores {{k=presentation length, l=length from the start}, node}
@@ -320,7 +322,15 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
 //    node finish = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
 //    node finish2 = {{-2, -2, -1, -1, -1, -1, 2, 1}, {1, -2, -1, 2, 1}};
     
+    int tstep = 0;
+    
     while(!q.empty()){
+        tstep++;
+        
+        if(tstep % (ll)(1e7) == 0){
+            cout << (ll)(used.size()) << endl;
+        }
+        
         auto v = q.top();
         q.pop();
         
@@ -333,7 +343,7 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
         mx = max(mx, (int)(v.second.first.size()) + (int)(v.second.second.size()));
         
         // if reached a trivial presentation
-        if((int)(v.second.first.size()) + (int)(v.second.second.size()) == 2){
+        if((int)(v.second.first.size()) + (int)(v.second.second.size()) == 2 || v.second == a){
             trivial = true;
             trivial_node = v.second;
             
@@ -352,7 +362,7 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
             // if {to} hasn't been expanded and {cost} is better than current best for {to},
             // then push to the open set
             
-            if((int)(to.first.size()) + (int)(to.second.size()) == 2){
+            if((int)(to.first.size()) + (int)(to.second.size()) == 2 || to == a){
                 trivial = true;
                 trivial_node = to;
                 
@@ -387,6 +397,12 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
     }
 
     reverse(path.begin(), path.end());
+    
+    for(auto i: path){
+        for(auto j: i)
+            cout << j << ' ';
+        cout << endl;
+    }
     
     cout << "Finished Greedy Search. " << (trivial ? "Trivialisation found" : "No trivialisation found") << endl;
         

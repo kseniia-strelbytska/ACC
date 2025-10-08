@@ -157,3 +157,5 @@ pair<vector<node>, deque<vector<int>>> get_path(map<node, pair<node, vector<int>
 pair<deque<int>, deque<int>> convert_moves(node start, node finish, vector<int> move);
 
 pair<bool, deque<int>> guided_exploration(node start, node finish, int depth);
+
+GreedyResult solver(node start, node finish, int max_nodes, int max_relator_length);

@@ -25,20 +25,18 @@ void timed_evaluation(char **argv, GreedyFn greedy_search_variant){
 }
 
 int main(int argc, char **argv){
-    node p1 = {{-2, -2, 1, 2, -1, -2, 1}, {-2, -2, -2, -2, 1, -2, -2, -2, 1, 1}};
-    node p2 = {{-2, -2, 1, 2, -1, -2, 1}, {-2, -2, -2, 1, -2, -1, -2, 1, 1}};
-    node p3 = {{-2, -2, 1, 2, -1, -2, 1}, {-2, -2, -1, -2, 1, 1}};
-    node p4 = {{-2, -2, 1, 2, 2, 2, -1}, {-2, -2, -2, 1, 2, -1, -2, 1}};
+//    node p1 = {{-2, -2, 1, 2, -1, -2, 1}, {-2, -2, -2, -2, 1, -2, -2, -2, 1, 1}};
+//    node p2 = {{-2, -2, 1, 2, -1, -2, 1}, {-2, -2, -2, 1, -2, -1, -2, 1, 1}};
+//    node p3 = {{-2, -2, 1, 2, -1, -2, 1}, {-2, -2, -1, -2, 1, 1}};
+//    node p4 = {{-2, -2, 1, 2, 2, 2, -1}, {-2, -2, -2, 1, 2, -1, -2, 1}};
     
-    auto result = guided_exploration(p1, p3, 0);
+    node a = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+   node b = {{-2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+   node c = {{-2, -2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
     
-    cout << fixed << setprecision(10) << result.first << endl;
+//    auto result = solver(b, a, (int)(1e8), 18);
     
-    vector<int> ans;
-    for(auto i: result.second)
-        ans.push_back(i);
-    
-    show_path(p1, ans);
+    auto result = greedy_search_insertmovesrotate(b, int(1e12), 18);
     
     return 0;
     
