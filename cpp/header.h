@@ -140,6 +140,10 @@ GreedyResult distance_greedy_search_insertmovesrotate(node start, int max_nodes,
 
 deque<int> get_smallest_rotation(deque<int> a);
 
+void write_paths(string presentation_path, string out_file);
+
+void write_multi_paths(string presentation_path, string dir_path);
+
 void analyse(vector<node> presentations, string sol_path);
 
 // ----------similarity.cpp----------
@@ -159,3 +163,12 @@ pair<deque<int>, deque<int>> convert_moves(node start, node finish, vector<int> 
 pair<bool, deque<int>> guided_exploration(node start, node finish, int depth);
 
 GreedyResult solver(node start, node finish, int max_nodes, int max_relator_length);
+
+// ----------distance_comparison.cpp----------
+pair<int, int> compare(vector<pair<node, node>> presentations, vector<int> lens);
+
+node presentation(string line);
+
+vector<vector<node>> extract_paths(string path);
+
+void analysis(vector<vector<node>> all_paths, string dir_path);

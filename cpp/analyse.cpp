@@ -19,6 +19,79 @@ deque<int> get_smallest_rotation(deque<int> a){
     return mn;
 }
 
+void write_paths(string presentation_path, string out_file){
+    vector<node> presentations = load_presentations_MS(presentation_path);
+    
+    ofstream out(out_file.c_str());
+    
+    ll ind = 0, solved = 0;
+    
+    for(auto test: presentations){
+        ind++;
+        
+        if(ind <= 533)
+            continue;
+        
+        auto result = greedy_search_insertmovesrotate(test, (int)(1e6), 18);
+        
+        auto path = get<std::pair<bool, std::vector<std::vector<int>>>> (result);
+        
+        if(path.first == true){
+            solved++;
+            out << (int)(path.second.size()) << endl;
+            node start = test;
+            
+            print(out, start);
+            
+            for(auto move: path.second){
+                start = insertmoverotate(start, move[0], move[1], move[2]);
+                
+                print(out, start);
+            }
+        }
+        cout << solved << "/" << ind << endl;
+    }
+}
+
+void write_multi_paths(string presentation_path, string dir_path){
+    vector<node> presentations = load_presentations_MS(presentation_path);
+    
+    cout << "Starting" << endl;
+    
+    ll ind = 0, solved = 0;
+    
+    for(auto test: presentations){
+        ind++;
+
+        string file_path = dir_path + "/results/files/path_" + to_string(ind) + ".txt";
+        ofstream out(file_path.c_str());
+
+        auto result = greedy_search_insertmovesrotate(test, (int)(1e6), 18);
+        
+        auto path = get<std::pair<bool, std::vector<std::vector<int>>>> (result);
+        
+        if(path.first == true){
+            solved++;
+            out << (int)(path.second.size()) << endl;
+            node start = test;
+            
+            print(out, start);
+            
+            for(auto move: path.second){
+                start = insertmoverotate(start, move[0], move[1], move[2]);
+                
+                print(out, start);
+            }
+        }
+        
+        out.close();
+        cout << solved << "/" << ind << endl;
+        
+        if(ind == 533)
+            break;
+    }
+}
+
 void analyse(vector<node> presentations, string sol_path){
     ifstream stream(sol_path.c_str());
     
@@ -95,57 +168,57 @@ void analyse(vector<node> presentations, string sol_path){
 //        out2.close();
         // CHANGE: FOR SMALLEST ROTATIONS
         
-        vector<pair<int, node>> nodes_s;
-        vector<pair<int, deque<int>>> relators_s;
-        
-        for(auto i: nodes)
-            nodes_s.push_back({i.second, i.first});
-        
-        for(auto i: relators)
-            relators_s.push_back({i.second, i.first});
-        
-        sort(nodes_s.rbegin(), nodes_s.rend());
-        sort(relators_s.rbegin(), relators_s.rend());
-        
-        ofstream out3("/Users/kseniia/Desktop/programming/Projects/ACC/results/solved_paths_rotate_MS_analyse.txt");
-        
-        for(int i = 0; i < 40; i++){
-            out3 << nodes_s[i].first << ' ';
-            print(out3, nodes_s[i].second);
-        }
-        
-        out3 << endl;
-        for(int i = 0; i < 40; i++){
-            out3 << relators_s[i].first << ' ';
-            print(out3, relators_s[i].second);
-        }
-        
-        out3.close();
-        
-//        ofstream out4("/Users/kseniia/Desktop/programming/Projects/ACC/results/solved_paths_rotate_MS_explicit_paths_plus_moves_smallestrotation.txt");
+//        vector<pair<int, node>> nodes_s;
+//        vector<pair<int, deque<int>>> relators_s;
 //        
-//        int path_ind = -1;
-//        for(auto i: paths){
-//            path_ind++;
-//            
-//            out4 << (int)(i.size()) - 1 << endl;
-//
-//            int move_ind = -2;
-//            for(auto j: i){
-//                move_ind++;
-//                
-//                if(move_ind >= 0){
-//                    for(auto p: all_moves[path_ind][move_ind])
-//                        out4 << p << ' ';
-//                    out4 << endl;
-//                }
-//                
-//                j.first = get_smallest_rotation(j.first);
-//                j.second = get_smallest_rotation(j.second);
-//                print(out4, j);
-//            }
+//        for(auto i: nodes)
+//            nodes_s.push_back({i.second, i.first});
+//        
+//        for(auto i: relators)
+//            relators_s.push_back({i.second, i.first});
+//        
+//        sort(nodes_s.rbegin(), nodes_s.rend());
+//        sort(relators_s.rbegin(), relators_s.rend());
+//        
+//        ofstream out3("/Users/kseniia/Desktop/programming/Projects/ACC/results/solved_paths_rotate_MS_analyse.txt");
+//        
+//        for(int i = 0; i < 40; i++){
+//            out3 << nodes_s[i].first << ' ';
+//            print(out3, nodes_s[i].second);
 //        }
-//        out4.close();
+//        
+//        out3 << endl;
+//        for(int i = 0; i < 40; i++){
+//            out3 << relators_s[i].first << ' ';
+//            print(out3, relators_s[i].second);
+//        }
+//        
+//        out3.close();
+        
+        ofstream out4("/Users/kseniia/Desktop/programming/Projects/ACC/results/solved_paths_rotate_MS_explicit_paths_plus_moves_smallestrotation.txt");
+        
+        int path_ind = -1;
+        for(auto i: paths){
+            path_ind++;
+            
+            out4 << (int)(i.size()) - 1 << endl;
+
+            int move_ind = -2;
+            for(auto j: i){
+                move_ind++;
+                
+                if(move_ind >= 0){
+                    for(auto p: all_moves[path_ind][move_ind])
+                        out4 << p << ' ';
+                    out4 << endl;
+                }
+                
+                j.first = get_smallest_rotation(j.first);
+                j.second = get_smallest_rotation(j.second);
+                print(out4, j);
+            }
+        }
+        out4.close();
     }
     else{
         cout << "Error when opening " << sol_path << endl;

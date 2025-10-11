@@ -52,7 +52,6 @@ void evaluate(GreedyFn greedy_search_variant, vector<node> presentations, string
     
     for(auto i: presentations){
         ind++;
-                
 //            print(cout, i);
         
         auto result = greedy_search_variant(i, max_nodes, max_relator_length);

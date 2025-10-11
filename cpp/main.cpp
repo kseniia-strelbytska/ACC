@@ -14,7 +14,7 @@ void timed_evaluation(char **argv, GreedyFn greedy_search_variant){
     
     string name = "rotate_MS";
     
-    evaluate(greedy_search_variant, presentations, dir_path + "/results/solved_presentations_" + name, dir_path + "/results/solved_paths_" + name, (ll)(1e6), 18);
+    evaluate(greedy_search_variant, presentations, dir_path + "/results/A" + name, dir_path + "/results/A" + name, (ll)(1e6), 18);
     
 //    // get current system time
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
@@ -25,24 +25,36 @@ void timed_evaluation(char **argv, GreedyFn greedy_search_variant){
 }
 
 int main(int argc, char **argv){
+    string dir_path = argv[1];
+
+    analysis(extract_paths(dir_path + "/results/533_explicit_solved_paths_insert_rotate.txt"), dir_path);
+    
+    exit(0);
+    
+    write_multi_paths(dir_path + "/all_presentations.txt", dir_path);
+    
+    exit(0);
+    
+    return 0;
+    
 //    node p1 = {{-2, -2, 1, 2, -1, -2, 1}, {-2, -2, -2, -2, 1, -2, -2, -2, 1, 1}};
 //    node p2 = {{-2, -2, 1, 2, -1, -2, 1}, {-2, -2, -2, 1, -2, -1, -2, 1, 1}};
 //    node p3 = {{-2, -2, 1, 2, -1, -2, 1}, {-2, -2, -1, -2, 1, 1}};
 //    node p4 = {{-2, -2, 1, 2, 2, 2, -1}, {-2, -2, -2, 1, 2, -1, -2, 1}};
     
-    node a = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
-   node b = {{-2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
-   node c = {{-2, -2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+//    node a = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+//   node b = {{-2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+//   node c = {{-2, -2, -2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
     
 //    auto result = solver(b, a, (int)(1e8), 18);
     
-    auto result = greedy_search_insertmovesrotate(b, int(1e12), 18);
-    
-    return 0;
-    
-    string dir_path = argv[1];
-    
-    auto presentations = load_presentations_MS(dir_path + "/all_presentations.txt");
+//    auto result = greedy_search_insertmovesrotate(b, int(1e12), 18);
+//    
+//    return 0;
+//    
+//    string dir_path = argv[1];
+//    
+//    auto presentations = load_presentations_MS(dir_path + "/all_presentations.txt");
     
 //    analyse(presentations, "/Users/kseniia/Desktop/programming/Projects/ACC/results/solved_paths_rotate_MS");
     
