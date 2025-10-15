@@ -17,19 +17,14 @@ void add_qgrams(multiset<deque<int>> &qgrams, deque<int> relator, int q){
     }
     
     // now consider cyclical qgrams
-    // {sub_total} = # of terms of the whole relator considered
-    // we shouldn't allow {sub_total} > relator.size()
-    int sub_total = (int)(sub.size());
-    
     // we shouldn't allow popped >= initial_len, as that means qgram is no longer cyclical
-    int initial_len = qgrams.size(), popped = 0;
+    int initial_len = sub.size(), popped = 0;
     
-    for(int i = 0; i < relator.size() && sub_total <= relator.size() && popped < initial_len; i++){
+    for(int i = 0; i < relator.size() && popped < initial_len; i++){
         // check whether last term of {sub}} cancels with the current term
         if(!sub.empty() && abs(sub.back()) == abs(relator[i]) && sub.back() != relator[i]){
             sub.pop_back();
             
-            sub_total++;
             // we know that the popped term must have come from inital {sub},
             // as no two neighbouring terms in {relator} cancel each other
             popped++;
@@ -38,14 +33,13 @@ void add_qgrams(multiset<deque<int>> &qgrams, deque<int> relator, int q){
         }
         
         sub.push_back(relator[i]);
-        sub_total++;
            
         if(int(sub.size()) > q){
             popped++;
             sub.pop_front();
         }
         
-        if(sub_total > int(relator.size()) || popped == initial_len)
+        if(popped == initial_len)
            break;
         
         if((int)(sub.size()) == q)
@@ -85,6 +79,114 @@ long double qgram_distance(node p1, node p2){
     long double distance = s1 / (s1 + s2) * res1 + s2 / (s1 + s2) * res2;
     
     return distance;
+}
+
+int get_distance(node a, node b){
+    a.first = get_smallest_rotation(a.first);
+    a.second = get_smallest_rotation(a.second);
+    
+    b.first = get_smallest_rotation(b.first);
+    b.second = get_smallest_rotation(b.second);
+    
+    normalise(a.first);
+    normalise(a.second);
+    normalise(b.first);
+    normalise(b.second);
+    
+    vector<int> p1, p2;
+    for(auto i: a.first)
+        p1.push_back(i);
+    for(auto i: a.second)
+        p1.push_back(i);
+    
+    for(auto i: b.first)
+        p2.push_back(i);
+    for(auto i: b.second)
+        p2.push_back(i);
+    
+    int n = (int)(p1.size()), m = (int)(p2.size());
+    vector<vector<int>> dp(n, vector<int> (m));
+    
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < m; j++){
+            dp[i][j] = (int)(1e9);
+            
+            if(p1[i] == p2[j]){
+                dp[i][j] = min(dp[i][j], (i - 1 >= 0 && j - 1 >= 0) ? dp[i - 1][j - 1] : max(i, j));
+            }
+            
+            dp[i][j] = min(dp[i][j], (i - 1 >= 0) ? 1 + dp[i - 1][j] : 2 + j);
+            dp[i][j] = min(dp[i][j], (j - 1 >= 0) ? 1 + dp[i][j - 1] : 2 + i);
+        }
+    }
+    
+    return dp[n - 1][m - 1];
+}
+
+// LCS = longest common substring.
+int get_lcs(node a, node b){
+    /*
+     
+     Having selected matching, considering first relators (same for a.second):
+     We want to rotate a.first and b.first in such a way, that ab^{-1} has the shortest possible length.
+     The # of cancelations = longest suffix of a that matches reverse(prefix) of b.
+     Therefore we need to find the longest common substring (LCS) of a and b (and then rotate both,
+        so that suffix of a matches prefix of b)
+     
+     We build SuffixTree and run SuffixTree.getLongestCommonSubstring() on
+     a.first+a.first+'#'+b.first+b.first+'$'
+     
+     LCS on this string will be the longest common substring of a.first+a.first and b.first+b.first
+     Every cyclic substring of a.first is present in a.first+a.first.
+     If LCS > min(|a.first|, |b.first|) -- trim it to smallest of the two lengths.
+     
+     */
+    
+    int mx = 0;
+    for(int matching = 0; matching < 2; matching++){
+        int total = 0; // sum of LCS for two relators
+        
+        for(int relator = 0; relator < 2; relator++){
+            // denote -2='a', -1='b', 1='c', 2='d'
+            map<int, char> mapping;
+            mapping[-2] = 'a';
+            mapping[-1] = 'b';
+            mapping[1] = 'c';
+            mapping[2] = 'd';
+            
+            string a1 = "", a2 = "";
+            for(auto g: a.first){
+                a1 += mapping[g];
+            }
+            
+            for(auto g: b.first){
+                a2 += mapping[g];
+            }
+                        
+            string concats = a1 + a1 + "#" + a2 + a2 + "$";
+            
+            SuffixTree st;
+            strcpy(st.text, concats.c_str());
+            st.size1 = 2 * (int)(a1.size()) + 1; // size of the first string
+            
+            st.buildSuffixTree();
+            string s = st.getLongestCommonSubstring();
+            st.freeSuffixTreeByPostOrder(st.root);
+                        
+            total += min({(int)(s.size()), (int)a.first.size(), (int)b.first.size()});
+            
+            swap(a.first, a.second);
+            swap(b.first, b.second);
+        }
+        
+        mx = max(mx, total);
+        
+        swap(b.first, b.second);
+    }
+    
+    int len = (int)(a.first.size()) + (int)(b.first.size()) + (int)(a.second.size()) + (int)(b.second.size()) - 2 * mx;
+    
+    return len;
 }
 
 // max_nodes = max size of neighbourhood

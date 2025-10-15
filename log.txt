@@ -257,3 +257,18 @@ Should try to use standard edit distance and see how it performs.
 05/10/25 
 Ran tests on insert-rotate guided exploration, I think move conversion works well, but:
 I took two neighbouring nodes (A and B) from an arbitrary MSn trivialisation path. The search didn't find the path between them, even though it consisted of just 2-3 insert-rotate moves. For some reason, when starting from MSn, the same neighbourhood exploration algorithm (just the greedy search with insert-rotate moves) can find a path start -> A -> B -> trivial, but when started from A, it cannot find a path to B. It can, however, find a trivialisation path. Does it find a more optimal path? Need to fix (and understand what's wrong). 
+
+11/10/25 
+Implemented ROC curve, seems interesting but should analyse steep decrease at recal=~0.04. 
+
+12/10/25
+Fixed qgram distance (was under-adding cyclic substrings). Now the curve has 3 problems
+1) The curve starts at 0 and is vertical for some time (recall is 0, accuracy 0, then jumps up quickly). I don't know what the lengths are, but very non-neighbouring nodes A-> B (actual distance 50-70) have similarity 1.0, because there is a direct edge (one cyclic rotation) between them. This edge is 1) not considered because my moves space is inserrt-rotate moves, no conjugation. Even if conjugation would be allowed, we would still not consider B, because len(A) = len(B), but between them -- all nodes are shorter. Greedy search sorts all nodes in the priority_queue by smaller presentation lengths first, so B would not be considered until after nodes on the path from A to B. 
+
+Can (partially) fix if added conjugation as an allowed move? 
+
+2) If both relator lengths are below 5 -> usually happens at the end of the path (last 3-5 nodes), so nodes are indeed actually neighbouring (true positives) -- qgram distance is 1 (because similarity -- Jaccard index -- between two empty sets -- is 0), ROC curve skyrockets to 0.9 accuracy at 0.07 recall. 
+
+3) If one relator length is below 5, the other -- above. This causes qgram distance to be 0, because there are simply 0 total qgrams in relator one. This usually happens at the end of the path (last 3-5 steps) and this gives a linear positively increasing tail in the ROC curve.
+
+Can fix if we skip nodes with min(|r1|, |r2|) < 5? Only if there are no short nodes in the middle of the paths, and we know they happen towards the end -- similarity is not as necessary?

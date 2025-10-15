@@ -25,6 +25,22 @@ void timed_evaluation(char **argv, GreedyFn greedy_search_variant){
 }
 
 int main(int argc, char **argv){
+//    timed_evaluation(argv, greedy_search_insertmovesrotate);
+//
+//    return 0;
+//    node p4 = {{-2, -2, 1, 2, 2, 2, -1}, {2, 2, 2, 1, 1, 2, 2, 2, 2, 1}};
+//    node w = {{2, 1, 1, 2, 2, 2, 1, 1}, {-2, -2, 1, 2, 2, 2, -1}};
+//    
+//    cout << get_lcs(w, p4) << endl;
+//    
+//    return 0;
+    
+    /*
+     -1 -1 -2 -2 1 1 2 -1 | 2 -1 2 -1 -2 1 2 2 -1 -2 -2 1 1
+     -1 -1 -2 -2 1 1 2 -1 | -1 2 -1 -2 1 2 2 -1 -2 -2 1 1 2
+     
+     */
+
     string dir_path = argv[1];
 
     analysis(extract_paths(dir_path + "/results/533_explicit_solved_paths_insert_rotate.txt"), dir_path);

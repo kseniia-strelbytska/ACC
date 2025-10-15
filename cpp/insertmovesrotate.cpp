@@ -298,7 +298,8 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
     priority_queue<node_info, vector<node_info>, greater<node_info>> q;
     
     // 'open set'; stores {{k=presentation length, l=length from the start}, node}
-    q.push({{(int)(start.first.size()) + (int)(start.second.size()), 0}, start});
+//    q.push({{(int)(start.first.size()) + (int)(start.second.size()), 0}, start});
+    q.push({{get_distance(start, {{1}, {2}}), 0}, start});
     
     // stores best pair (k, l) for each node
     map<node, pair<int, int>> mp;
@@ -351,7 +352,8 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
         for(int move = 0; move < (int)all_moves.size() && neighbours_found < 20; move++){
             auto to = insertmoverotate(v.second, all_moves[move].second[0], all_moves[move].second[1], all_moves[move].second[2]); // node, index, tag
             
-            pair<int, int> cost = {(int)(to.first.size()) + (int)(to.second.size()), v.first.second + 1};
+//            pair<int, int> cost = {(int)(to.first.size()) + (int)(to.second.size()), v.first.second + 1};
+            pair<int, int> cost = {get_distance(to, {{1}, {2}}), v.first.second + 1};
             
             // if {to} hasn't been expanded and {cost} is better than current best for {to},
             // then push to the open set
@@ -401,48 +403,6 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
 //    cout << "Finished Greedy Search. " << (trivial ? "Trivialisation found" : "No trivialisation found") << endl;
         
     return make_pair(trivial, path);
-}
-
-int get_distance(node a, node b){
-    a.first = get_smallest_rotation(a.first);
-    a.second = get_smallest_rotation(a.second);
-    
-    b.first = get_smallest_rotation(b.first);
-    b.second = get_smallest_rotation(b.second);
-    
-    normalise(a.first);
-    normalise(a.second);
-    normalise(b.first);
-    normalise(b.second);
-    
-    vector<int> p1, p2;
-    for(auto i: a.first)
-        p1.push_back(i);
-    for(auto i: a.second)
-        p1.push_back(i);
-    
-    for(auto i: b.first)
-        p2.push_back(i);
-    for(auto i: b.second)
-        p2.push_back(i);
-    
-    int n = (int)(p1.size()), m = (int)(p2.size());
-    vector<vector<int>> dp(n, vector<int> (m));
-    
-    for(int i = 0; i < n; i++){
-        for(int j = 0; j < m; j++){
-            dp[i][j] = (int)(1e9);
-            
-            if(p1[i] == p2[j]){
-                dp[i][j] = min(dp[i][j], (i - 1 >= 0 && j - 1 >= 0) ? dp[i - 1][j - 1] : max(i, j));
-            }
-            
-            dp[i][j] = min(dp[i][j], (i - 1 >= 0) ? 1 + dp[i - 1][j] : 2 + j);
-            dp[i][j] = min(dp[i][j], (j - 1 >= 0) ? 1 + dp[i][j - 1] : 2 + i);
-        }
-    }
-    
-    return dp[n - 1][m - 1];
 }
 
 GreedyResult distance_greedy_search_insertmovesrotate(node start, int max_nodes, int max_relator_length){

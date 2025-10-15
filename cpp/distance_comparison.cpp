@@ -93,11 +93,11 @@ vector<vector<node>> extract_paths(string path){
 struct node_pair{
     int distance;
     long double qgram;
-    int edit, path, ind1, ind2;
+    int edit, lcs, path, ind1, ind2;
     
     void print(ostream &stream){
         stream << distance << ' ' << fixed << setprecision(5) << qgram;
-        stream << fixed << setprecision(0) << ' ' << edit << ' ' << path << ' ' << ind1 << ' ' << ind2 << endl;;
+        stream << fixed << setprecision(0) << ' ' << edit << ' ' << lcs << ' ' << path << ' ' << ind1 << ' ' << ind2 << endl;;
     }
 };
 
@@ -111,12 +111,15 @@ void analysis(vector<vector<node>> all_paths, string dir_path){
     
     int mx = 0;
     
+    // ind1 and ind2 are 1-indexed when appended
+    
     for(int path = 0; path < (int)all_paths.size(); path++){
+        cout << path << endl;
         for(int ind1 = 0; ind1 < all_paths[path].size(); ind1++){
             for(int ind2 = ind1 + 1; ind2 < all_paths[path].size(); ind2++){
                 all_pairs.push_back({ind2 - ind1,
                     qgram_distance(all_paths[path][ind1], all_paths[path][ind2]),
-                    get_distance(all_paths[path][ind1], all_paths[path][ind2]), path + 1, ind1, ind2});
+                    get_distance(all_paths[path][ind1], all_paths[path][ind2]), get_lcs(all_paths[path][ind1], all_paths[path][ind2]), path + 1, ind1 + 1, ind2 + 1});
             }
         }
     }
