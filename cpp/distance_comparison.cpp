@@ -1,11 +1,17 @@
 #include "header.h"
 
-pair<int, int> compare(vector<pair<node, node>> presentations, vector<int> lens){
-    // presentations {a, b}: pairs of nodes a and b, trying to get distance to correlate with len(path(a, b))
+// takes presentations {a, b}: pairs of nodes a and b, trying to get distance to correlate with len(path(a, b))
+// ans lens: ground truth distance between nodes in each pair
+// returns {m1, m2, m3, total number of pairs}
+vector<int> order_comparator(vector<pair<node, node>> presentations, vector<int> lens){
+    // motivation: for two pairs of nodes a1 and a2, an ideal similarity metric f
+    // will have f(a1) < f(a2) iff distance a1 > distance a2
+    // therefore we are checking which of the metrics has a higher proportion of node pairs ordered correctly.
+    
     int n = (int)(presentations.size());
     
     int total = n * (n - 1) / 2;
-    int qscore_correct = 0, editdistance_correct = 0;
+    int qscore_correct = 0, editdistance_correct = 0, lcsdistance_correct = 0;
 
     for(int i = 0; i < n; i++){
         for(int j = i + 1; j < n; j++){
@@ -14,19 +20,78 @@ pair<int, int> compare(vector<pair<node, node>> presentations, vector<int> lens)
             
             int edit_distancei = get_distance(presentations[i].first, presentations[i].second);
             int edit_distancej = get_distance(presentations[j].first, presentations[j].second);
+            
+            int lcs_distancei = get_lcs(presentations[i].first, presentations[i].second);
+            int lcs_distancej = get_lcs(presentations[j].first, presentations[j].second);
 
+            // -1 = p[i] is closer together than p[j]
+            // 0 = equidistant
+            // 1 = p[i] is farther apart than p[j]
+            
             int sign0 = (lens[i] < lens[j] ? -1 : (lens[i] == lens[j] ? 0 : 1));
             int sign1 = (qscorei < qscorej ? -1 : (qscorei == qscorej ? 0 : 1));
             int sign2 = (edit_distancei > edit_distancej ? -1 : (edit_distancei == edit_distancej ? 0 : 1));
+            int sign3 = (lcs_distancei > lcs_distancej ? -1 : (lcs_distancei == lcs_distancej ? 0 : 1));
             
             if(sign0 == sign1)
                 qscore_correct++;
             if(sign0 == sign2)
                 editdistance_correct++;
+            if(sign0 == sign3)
+                lcsdistance_correct++;
+        }
+        
+        cout << i << endl;
+    }
+    
+    return {qscore_correct, editdistance_correct, lcsdistance_correct, total};
+}
+
+void compare_by_order(vector<vector<node>> all_paths){
+    srand(1);
+    
+    int tot = 0;
+    
+    for(auto i: all_paths)
+        tot += (int)(i.size());
+    
+    cout << tot << endl; // 9852
+    
+    vector<pair<node, node>> presentations;
+    vector<int> lens;
+    
+    for(auto path: all_paths){
+        for(int i = 0; i < path.size(); i++){
+            for(int j = i + 1; j < path.size(); j++){
+                presentations.push_back({path[i], path[j]});
+                lens.push_back(j - i);
+            }
         }
     }
     
-    return {qscore_correct, editdistance_correct};
+    vector<pair<node, node>> sampled_presentations;
+    vector<int> sampled_lens;
+    
+    int sample_size = (int)(2e3);
+    
+    for(int sample = 0; sample < sample_size; sample++){
+        int idx = rand() % (int)(presentations.size());
+        
+        sampled_presentations.push_back(presentations[idx]);
+        sampled_lens.push_back(lens[idx]);
+        
+        swap(presentations[idx], presentations[presentations.size() - 1]);
+        presentations.pop_back();
+        
+        swap(lens[idx], lens[lens.size() - 1]);
+        lens.pop_back();
+    }
+        
+    auto result = order_comparator(sampled_presentations, sampled_lens);
+    
+    for(auto i: result)
+        cout << i << ' ';
+    cout << endl;
 }
 
 // format: -1 2 1 -2 -2 | -1 2

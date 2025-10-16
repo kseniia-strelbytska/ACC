@@ -299,7 +299,7 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
     
     // 'open set'; stores {{k=presentation length, l=length from the start}, node}
 //    q.push({{(int)(start.first.size()) + (int)(start.second.size()), 0}, start});
-    q.push({{get_distance(start, {{1}, {2}}), 0}, start});
+    q.push({{-qgram_distance(start, {{1}, {2}}), 0}, start});
     
     // stores best pair (k, l) for each node
     map<node, pair<int, int>> mp;
@@ -353,7 +353,7 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
             auto to = insertmoverotate(v.second, all_moves[move].second[0], all_moves[move].second[1], all_moves[move].second[2]); // node, index, tag
             
 //            pair<int, int> cost = {(int)(to.first.size()) + (int)(to.second.size()), v.first.second + 1};
-            pair<int, int> cost = {get_distance(to, {{1}, {2}}), v.first.second + 1};
+            pair<int, int> cost = {-qgram_distance(to, {{1}, {2}}), v.first.second + 1};
             
             // if {to} hasn't been expanded and {cost} is better than current best for {to},
             // then push to the open set

@@ -273,24 +273,19 @@ def process_all_pairs(filepath):
     
     return all_pairs
 
-# metric_idx = 1 for qgram, 2 for edit, 3 for LCS
-def roc_curve(all_pairs, ndistance, metric_idx, metric_name):
+def roc_curve(all_pairs, ndistance):
     qgram_scores = []
-    idx = -1
-    
     for pair in all_pairs:
-        idx += 1
+        qgram_scores.append((pair[1], pair))
         
-        qgram_scores.append((pair[metric_idx], idx))
+    qgram_scores.sort(reverse = True)
     
-    qgram_scores.sort(reverse = (True if metric_idx == 1 else False))
-    
-    with open(f'/Users/kseniia/Desktop/programming/Projects/ACC/results/all_pairs_{metric_name}sorted.txt', 'w') as f:
+    with open('/Users/kseniia/Desktop/programming/Projects/ACC/results/all_pairs_qgramsorted.txt', 'w') as f:
         for pair in qgram_scores:
             s = ''
-            for i in all_pairs[pair[1]]:
+            for i in pair[1]:
                 s += str(i) + ' '
-            f.write(f'{s:<40}1' if all_pairs[pair[1]][0] <= ndistance else f'{s:<40}0')
+            f.write(f'{s:<25}1' if pair[1][0] <= ndistance else f'{s:<25}0')
             f.write('\n')
     
     total_neighbouring = sum([(1 if pair[0] <= ndistance else 0) for pair in all_pairs])
@@ -300,19 +295,16 @@ def roc_curve(all_pairs, ndistance, metric_idx, metric_name):
     precision, recall = [], []
     
     for idx in range(len(qgram_scores)):
-        if all_pairs[qgram_scores[idx][1]][0] <= ndistance:
+        if qgram_scores[idx][1][0] <= ndistance:
             neighbouring_retrieved += 1
         
         precision.append(neighbouring_retrieved / (idx + 1))
         recall.append(neighbouring_retrieved / total_neighbouring)
-        
+       
     plt.plot(recall, precision)
-    plt.savefig(f'/Users/kseniia/Desktop/programming/Projects/ACC/results/roc_curve_' + metric_name + f'_nd={ndistance}.png')
+    plt.savefig(f'/Users/kseniia/Desktop/programming/Projects/ACC/results/roc_curve_qgram_nd={ndistance}.png')
+    plt.close()
 
 if __name__ == "__main__":
     all_pairs = process_all_pairs('/Users/kseniia/Desktop/programming/Projects/ACC/results/all_pairs.txt')
-    
-    names = ['qgram', 'edit', 'lcs']
-    
-    for idx in range(len(names)):
-        roc_curve(all_pairs, 4, idx + 1, names[idx])
+    roc_curve(all_pairs, 4)

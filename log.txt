@@ -263,7 +263,7 @@ Implemented ROC curve, seems interesting but should analyse steep decrease at re
 
 12/10/25
 Fixed qgram distance (was under-adding cyclic substrings). Now the curve has 3 problems
-1) The curve starts at 0 and is vertical for some time (recall is 0, accuracy 0, then jumps up quickly). I don't know what the lengths are, but very non-neighbouring nodes A-> B (actual distance 50-70) have similarity 1.0, because there is a direct edge (one cyclic rotation) between them. This edge is 1) not considered because my moves space is inserrt-rotate moves, no conjugation. Even if conjugation would be allowed, we would still not consider B, because len(A) = len(B), but between them -- all nodes are shorter. Greedy search sorts all nodes in the priority_queue by smaller presentation lengths first, so B would not be considered until after nodes on the path from A to B. 
+1) The curve starts at 0 and is vertical for some time (recall is 0, accuracy 0, then jumps up quickly). I don't know what the lengths are, but very non-neighbouring nodes A-> B (actual distance 50-70) have similarity 1.0, because there is a direct edge (one cyclic rotation) between them. This edge is 1) not considered because my moves space is insert-rotate moves, no conjugation. Even if conjugation would be allowed, we would still not consider B, because len(A) = len(B), but between them -- all nodes are shorter. Greedy search sorts all nodes in the priority_queue by smaller presentation lengths first, so B would not be considered until after nodes on the path from A to B. 
 
 Can (partially) fix if added conjugation as an allowed move? 
 
@@ -272,3 +272,16 @@ Can (partially) fix if added conjugation as an allowed move?
 3) If one relator length is below 5, the other -- above. This causes qgram distance to be 0, because there are simply 0 total qgrams in relator one. This usually happens at the end of the path (last 3-5 steps) and this gives a linear positively increasing tail in the ROC curve.
 
 Can fix if we skip nodes with min(|r1|, |r2|) < 5? Only if there are no short nodes in the middle of the paths, and we know they happen towards the end -- similarity is not as necessary?
+
+15/10/25
+Right, LCS (Longest Common Substring) is another similarity metric. 
+LCS(p1, p2) for two presentations p1 and p2 is equal to the shortest total presentation length of product of r1 * r1'^{-1}; r2 and r2'^{-1} or r1 * r2'^{-1}; r2 and r1'^{-1}, given that all relators have been rotated. This is based on observation that when p1=p2, the product will have length 0 (as all terms will cancel), therefore we might want to try minimise the product length. 
+Implementation (from https://www.geeksforgeeks.org/dsa/suffix-tree-application-5-longest-common-substring-2/) is based on an algorithm for finding the Longest Common Substring for each pair of relators. This is implemented with suffix trees in O(total presentation length). 
+
+Spearman correlation varies from -1 to 1. Higher absolute value means higher correlation
+Correlation between ground truth distance and qgram is -0.2210071834003738
+Correlation between ground truth distance and edit is 0.39364743830729115
+Correlation between ground truth distance and lcs is 0.40168788300328495
+Correlation between edit distance and lcs is 0.6864310295815326
+
+There is actually a lot of skip moves between distant nodes (if we look at the insert-rotate trivialisation paths). 

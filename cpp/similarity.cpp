@@ -128,7 +128,7 @@ int get_lcs(node a, node b){
     /*
      
      Having selected matching, considering first relators (same for a.second):
-     We want to rotate a.first and b.first in such a way, that ab^{-1} has the shortest possible length.
+     We want to rotate a.first and b.first in such a way, so that ab^{-1} has the shortest possible length.
      The # of cancelations = longest suffix of a that matches reverse(prefix) of b.
      Therefore we need to find the longest common substring (LCS) of a and b (and then rotate both,
         so that suffix of a matches prefix of b)

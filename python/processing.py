@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
-from scipy.stats import spearmanr
+import numpy as np
+from scipy.stats import spearmanr, pearsonr
 
 def extract_paths():
     file_path = '/Users/kseniia/Desktop/programming/Projects/ACC/results/solved_paths_rotate_MS_explicit_paths_smallestrotation.txt'
@@ -7,7 +8,7 @@ def extract_paths():
     paths = []
 
     with open(file_path, 'r') as f:
-        current = [] 
+        current = []
 
         for line in f:
             line = line.strip('\n')
@@ -23,10 +24,10 @@ def extract_paths():
 
                 for gen in p:
                     if gen == '':
-                        continue 
+                        continue
                     
                     if gen == '|':
-                        r1, r2 = r2, r1 
+                        r1, r2 = r2, r1
                     else:
                         r2.append(int(gen))
                 
@@ -42,7 +43,7 @@ def extract_moves():
     moves = []
 
     with open(file_path, 'r') as f:
-        current = [] 
+        current = []
 
         for line in f:
             line = line.strip('\n')
@@ -75,7 +76,7 @@ def move_sequence(paths, moves):
     s = sum([sum(row) for row in flow])
 
     for row in flow:
-        row = [round(i / s, 2) for i in row] 
+        row = [round(i / s, 2) for i in row]
         print(row)
 
     parity = [[0] * 2 for i in range(2)]
@@ -234,18 +235,19 @@ def process_all_pairs(filepath):
         for line in f:
             data = [float(i) for i in line.strip().split(' ')]
             
-            for idx in range(6):
+            for idx in range(len(data)):
                 if idx != 1: # not qgram
                     data[idx] = int(data[idx])
                    
             all_pairs.append(data)
             
-    distances, qgram, edit = [], [], []
+    distances, qgram, edit, lcs = [], [], [], []
     
     for pair in all_pairs:
         distances.append(pair[0])
         qgram.append(pair[1])
         edit.append(pair[2])
+        lcs.append(pair[3])
         
 #    plt.scatter(distances, edit, s=0.1)
 # plt.savefig('/Users/kseniia/Desktop/programming/Projects/ACC/results/edit_vs_distance_scatter.png', dpi=1000)
@@ -258,34 +260,51 @@ def process_all_pairs(filepath):
     for pair in all_pairs:
         d_q[pair[0]].append((pair[1], pair))
         
-    for l in range(1, 2):
-        d_q[l].sort()
-        
-        for example in d_q[l][0:20]:
-            print(example)
-        for example in d_q[l][-21:-1]:
-            print(example)
-            
-        print('-' * 30)
-        
-    correlation = spearmanr(distances, qgram)
-    print(correlation[0])
+#    for l in range(1, 2):
+#        d_q[l].sort()
+#
+#        for example in d_q[l][0:20]:
+#            print(example)
+#        for example in d_q[l][-21:-1]:
+#            print(example)
+#
+#        print('-' * 30)
     
+    print('S and P correlations very from -1 to 1. Higher absolute value means higher correlation')
+    correlation = spearmanr(distances, qgram)
+    print(f'S Correlation between ground truth distance and qgram is {correlation[0]}')
+    correlation = spearmanr(distances, edit)
+    print(f'S Correlation between ground truth distance and edit is {correlation[0]}')
+    correlation = spearmanr(distances, lcs)
+    print(f'S Correlation between ground truth distance and lcs is {correlation[0]}')
+    
+    correlation = pearsonr(distances, qgram)
+    print(f'P Correlation between ground truth distance and qgram is {correlation[0]}')
+    correlation = pearsonr(distances, edit)
+    print(f'P Correlation between ground truth distance and edit is {correlation[0]}')
+    correlation = pearsonr(distances, lcs)
+    print(f'P Correlation between ground truth distance and lcs is {correlation[0]}')
+        
     return all_pairs
 
-def roc_curve(all_pairs, ndistance):
+# metric_idx = 1 for qgram, 2 for edit, 3 for LCS
+def roc_curve(all_pairs, ndistance, metric_idx, metric_name):
     qgram_scores = []
-    for pair in all_pairs:
-        qgram_scores.append((pair[1], pair))
-        
-    qgram_scores.sort(reverse = True)
+    idx = -1
     
-    with open('/Users/kseniia/Desktop/programming/Projects/ACC/results/all_pairs_qgramsorted.txt', 'w') as f:
+    for pair in all_pairs:
+        idx += 1
+        
+        qgram_scores.append((pair[metric_idx], idx))
+    
+    qgram_scores.sort(reverse = (True if metric_idx == 1 else False))
+    
+    with open(f'/Users/kseniia/Desktop/programming/Projects/ACC/results/all_pairs_{metric_name}sorted.txt', 'w') as f:
         for pair in qgram_scores:
             s = ''
-            for i in pair[1]:
+            for i in all_pairs[pair[1]]:
                 s += str(i) + ' '
-            f.write(f'{s:<25}1' if pair[1][0] <= ndistance else f'{s:<25}0')
+            f.write(f'{s:<40}1' if all_pairs[pair[1]][0] <= ndistance else f'{s:<40}0')
             f.write('\n')
     
     total_neighbouring = sum([(1 if pair[0] <= ndistance else 0) for pair in all_pairs])
@@ -295,16 +314,79 @@ def roc_curve(all_pairs, ndistance):
     precision, recall = [], []
     
     for idx in range(len(qgram_scores)):
-        if qgram_scores[idx][1][0] <= ndistance:
+        if all_pairs[qgram_scores[idx][1]][0] <= ndistance:
             neighbouring_retrieved += 1
         
         precision.append(neighbouring_retrieved / (idx + 1))
         recall.append(neighbouring_retrieved / total_neighbouring)
-       
-    plt.plot(recall, precision)
-    plt.savefig(f'/Users/kseniia/Desktop/programming/Projects/ACC/results/roc_curve_qgram_nd={ndistance}.png')
-    plt.close()
+        
+    fig, ax = plt.subplots()
+    ax.set(ylim=(0, 1))
+    ax.plot(recall, precision)
+    fig.savefig(f'/Users/kseniia/Desktop/programming/Projects/ACC/results/roc_curve_' + metric_name + f'_nd={ndistance}.png')
+    
+    fig.clf()
+    
+def edit_lcs_correlation(all_pairs):
+    x, y = [], []
+    
+    for pair in all_pairs:
+        x.append(pair[2]) # edit
+        y.append(pair[3]) # lcs
+    
+    print('S and P correlations vary from -1 to 1. Higher absolute value means higher correlation')
+    correlation = spearmanr(x, y)
+    print(f'S Correlation between edit distance and lcs is {correlation[0]}')
+    correlation = pearsonr(x, y)
+    print(f'P Correlation between edit distance and lcs is {correlation[0]}')
+    
+def show_averages(all_pairs, dmax):
+    distances = {}
+    
+    for pair in all_pairs:
+        if pair[0] not in distances:
+            distances[pair[0]] = []
+        
+        distances[pair[0]].append(pair)
+        
+    fig, axs = plt.subplots()
+    
+    y_edit, y_qgram, y_lcs = [], [], []
+    
+    for d in range(1, dmax):
+        edit, qgram, lcs = 0, 0, 0
+        
+        for pair in distances[d]:
+            qgram += pair[1]
+            edit += pair[2]
+            lcs += pair[3]
+        
+        l = len(distances[d])
+        
+        print(f'Averages at distance {d}: edit = {round(edit / l, 3)}, qgram = {round(qgram / l, 3)}, lcs = {round(lcs / l, 3)}')
+        
+        y_edit.append(edit / l)
+        y_qgram.append(10 * qgram / l)
+        y_lcs.append(lcs / l)
+    
+    x = [i for i in range(1, dmax)]
+    
+    axs.plot(x, y_qgram, label = 'Qgram distance')
+    axs.plot(x, y_edit, label = 'Edit distance')
+    axs.plot(x, y_lcs, label = 'LCS distance')
+    axs.legend()
+    axs.set_xlabel('Distance')
+    
+    fig.savefig(f'/Users/kseniia/Desktop/programming/Projects/ACC/results/avg_metric_change_vs_distance.png')
 
 if __name__ == "__main__":
     all_pairs = process_all_pairs('/Users/kseniia/Desktop/programming/Projects/ACC/results/all_pairs.txt')
-    roc_curve(all_pairs, 4)
+    
+    show_averages(all_pairs, 20)
+    
+#    names = ['qgram', 'edit', 'lcs']
+#    
+#    for idx in range(len(names)):
+#        roc_curve(all_pairs, 4, idx + 1, names[idx])
+#        
+#    edit_lcs_correlation(all_pairs)

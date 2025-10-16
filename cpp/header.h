@@ -39,7 +39,7 @@ typedef long double ld;
  */
 
 typedef pair<deque<int>, deque<int>> node;
-typedef pair<pair<int, int>, node> node_info;
+typedef pair<pair<long double, int>, node> node_info;
 
 using GreedyResult = std::variant<
     std::pair<bool, std::vector<int>>,
@@ -169,7 +169,9 @@ pair<bool, deque<int>> guided_exploration(node start, node finish, int depth);
 GreedyResult solver(node start, node finish, int max_nodes, int max_relator_length);
 
 // ----------distance_comparison.cpp----------
-pair<int, int> compare(vector<pair<node, node>> presentations, vector<int> lens);
+vector<int> order_comparator(vector<pair<node, node>> presentations, vector<int> lens);
+
+void compare_by_order(vector<vector<node>> all_paths);
 
 node presentation(string line);
 
@@ -178,6 +180,8 @@ vector<vector<node>> extract_paths(string path);
 void analysis(vector<vector<node>> all_paths, string dir_path);
 
 // ----------LCS.cpp----------
+// https://www.geeksforgeeks.org/dsa/suffix-tree-application-5-longest-common-substring-2/
+
 struct SuffixTreeNode {
     struct SuffixTreeNode *children[MAX_CHAR];
 

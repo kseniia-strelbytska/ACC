@@ -25,9 +25,9 @@ void timed_evaluation(char **argv, GreedyFn greedy_search_variant){
 }
 
 int main(int argc, char **argv){
-//    timed_evaluation(argv, greedy_search_insertmovesrotate);
-//
-//    return 0;
+    timed_evaluation(argv, greedy_search_insertmovesrotate);
+
+    return 0;
 //    node p4 = {{-2, -2, 1, 2, 2, 2, -1}, {2, 2, 2, 1, 1, 2, 2, 2, 2, 1}};
 //    node w = {{2, 1, 1, 2, 2, 2, 1, 1}, {-2, -2, 1, 2, 2, 2, -1}};
 //    
@@ -42,15 +42,18 @@ int main(int argc, char **argv){
      */
 
     string dir_path = argv[1];
+    compare_by_order(extract_paths(dir_path + "/results/533_explicit_solved_paths_insert_rotate.txt"));
+
+    return 0;
 
     analysis(extract_paths(dir_path + "/results/533_explicit_solved_paths_insert_rotate.txt"), dir_path);
     
-    exit(0);
-    
+    return 0;
+
     write_multi_paths(dir_path + "/all_presentations.txt", dir_path);
     
-    exit(0);
-    
+    return 0;
+
     return 0;
     
 //    node p1 = {{-2, -2, 1, 2, -1, -2, 1}, {-2, -2, -2, -2, 1, -2, -2, -2, 1, 1}};
