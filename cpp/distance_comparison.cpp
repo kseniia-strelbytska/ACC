@@ -171,7 +171,7 @@ bool node_pair_qgram(const node_pair &a, const node_pair &b){
     return a.qgram > b.qgram;
 }
 
-void analysis(vector<vector<node>> all_paths, string dir_path){
+void write_pairwise_metric_results(vector<vector<node>> all_paths, string dir_path, string filename){
     vector<node_pair> all_pairs;
     
     int mx = 0;
@@ -179,7 +179,6 @@ void analysis(vector<vector<node>> all_paths, string dir_path){
     // ind1 and ind2 are 1-indexed when appended
     
     for(int path = 0; path < (int)all_paths.size(); path++){
-        cout << path << endl;
         for(int ind1 = 0; ind1 < all_paths[path].size(); ind1++){
             for(int ind2 = ind1 + 1; ind2 < all_paths[path].size(); ind2++){
                 all_pairs.push_back({ind2 - ind1,
@@ -190,7 +189,7 @@ void analysis(vector<vector<node>> all_paths, string dir_path){
     }
     
     // save all pairs (distances) to a file to access via python plotting script
-    ofstream out(dir_path + "/results/all_pairs.txt");
+    ofstream out(dir_path + "/results" + filename);
     for(auto p: all_pairs){
         p.print(out);
     }

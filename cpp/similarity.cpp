@@ -70,6 +70,15 @@ long double qgram_distance(deque<int> a, deque<int> b){
 }
 
 long double qgram_distance(node p1, node p2){
+//    while(p1.first.size() < 5)
+//        p1.first.push_back(0);
+//    while(p1.second.size() < 5)
+//        p1.second.push_back(0);
+//    while(p2.first.size() < 5)
+//        p2.first.push_back(0);
+//    while(p2.second.size() < 5)
+//        p2.second.push_back(0);
+    
     long double s1 = (long double)(p1.first.size()) + (long double)(p2.first.size());
     long double s2 = (long double)(p1.second.size()) + (long double)(p2.second.size());
     
@@ -82,11 +91,11 @@ long double qgram_distance(node p1, node p2){
 }
 
 int get_distance(node a, node b){
-    a.first = get_smallest_rotation(a.first);
-    a.second = get_smallest_rotation(a.second);
-    
-    b.first = get_smallest_rotation(b.first);
-    b.second = get_smallest_rotation(b.second);
+//    a.first = get_smallest_rotation(a.first);
+//    a.second = get_smallest_rotation(a.second);
+//    
+//    b.first = get_smallest_rotation(b.first);
+//    b.second = get_smallest_rotation(b.second);
     
     normalise(a.first);
     normalise(a.second);
@@ -194,7 +203,12 @@ pair<vector<node>, map<node, pair<node, vector<int>>>> neighbourhood_greedy_sear
     priority_queue<node_info, vector<node_info>, greater<node_info>> q;
     
     // 'open set'; stores {{k=presentation length, l=length from the start}, node}
-    q.push({{min((int)(start.first.size()), (int)(start.second.size())), 0}, start});
+    q.push({{(int)(start.first.size()) + (int)(start.second.size()), 0}, start});
+    
+//    int mn = (int)(1e9);
+//    for(auto target: all_trivial)
+//        mn = min(mn, get_distance(start, target));
+//    q.push({{mn, 0}, start});
     
     // stores best pair (k, l) for each node
     map<node, pair<int, int>> mp;
@@ -206,6 +220,8 @@ pair<vector<node>, map<node, pair<node, vector<int>>>> neighbourhood_greedy_sear
     
     // 'closed set'; a set of all expanded nodes (shouldn't be expanded again)
     set<node> used;
+    used.insert(start);
+    
     int expanded = 0;
     bool trivial = false;
     
@@ -213,19 +229,30 @@ pair<vector<node>, map<node, pair<node, vector<int>>>> neighbourhood_greedy_sear
     
     int mx = 0;
     
+//    node finish = {{-2, -2, -1, -1, -1, -1, 2, 1}, {-1, -2, 1, 2, -1}};
+//    node finish2 = {{-2, -2, -1, -1, -1, -1, 2, 1}, {1, -2, -1, 2, 1}};
+    
+    int tstep = 0;
+    
     while(!q.empty()){
+        tstep++;
+        
         auto v = q.top();
         q.pop();
-                        
+                
+//        auto *f = freopen("./output_cpp.txt", "a", stdout);
+//        print(v.second);
+//        fclose(f);
+        
         mx = max(mx, (int)(v.second.first.size()) + (int)(v.second.second.size()));
         
         // if reached a trivial presentation
-        if((int)(v.second.first.size()) + (int)(v.second.second.size()) == 2){
-            trivial = true;
-            trivial_node = v.second;
-                        
-            break;
-        }
+//        if((int)(v.second.first.size()) + (int)(v.second.second.size()) == 2){
+//            trivial = true;
+//            trivial_node = v.second;
+//            
+//            break;
+//        }
         
         auto all_moves = rank_insertmovesrotate(v.second);
         
@@ -234,21 +261,25 @@ pair<vector<node>, map<node, pair<node, vector<int>>>> neighbourhood_greedy_sear
         for(int move = 0; move < (int)all_moves.size() && neighbours_found < 20; move++){
             auto to = insertmoverotate(v.second, all_moves[move].second[0], all_moves[move].second[1], all_moves[move].second[2]); // node, index, tag
             
-            pair<int, int> cost = {min((int)(to.first.size()), (int)(to.second.size())), v.first.second + 1};
+            pair<int, int> cost = {(int)(to.first.size()) + (int)(to.second.size()), v.first.second + 1};
             
+//            mn = (int)(1e9);
+//            for(auto target: all_trivial)
+//                mn = min(mn, get_distance(to, target));
+//
+//            pair<int, int> cost = {mn, v.first.second + 1};
+           
             // if {to} hasn't been expanded and {cost} is better than current best for {to},
             // then push to the open set
             
-            if((int)(to.first.size()) + (int)(to.second.size()) == 2){
-                trivial = true;
-                trivial_node = to;
-                
-                parent[to] = {v.second, all_moves[move].second};
-
-                used.insert(to);
-                                
-                break;
-            }
+//            if((int)(to.first.size()) + (int)(to.second.size()) == 2){
+//                trivial = true;
+//                trivial_node = to;
+//                
+//                parent[to] = {v.second, all_moves[move].second};
+//                
+//                break;
+//            }
             
             if((int)(to.first.size()) < max_relator_length && (int)(to.second.size()) < max_relator_length && !used.count(to)){
                 neighbours_found += 1;
@@ -424,16 +455,23 @@ vector<node> f = {{{-2, -2, 1, 2, -1, -2, 1}, {-2, -2, -2, -2, 1, -2, -2, -2, 1,
     {{-2, -2, 1, 2, -1, -2, 1 }, { -2, -2, -1, -2, 1, 1 }}
 };
 
+// deoth starts at 1
 pair<bool, deque<int>> guided_exploration(node start, node finish, int depth){
-    if(depth >= 4)
+    if(depth >= 3)
         return {false, {}};
     
-    print(cout, start);
-    print(cout, finish);
+    ofstream mainout("/Users/kseniia/Desktop/programming/Projects/ACC/results/console_output.txt");
     
-    auto neigh1 = neighbourhood_greedy_search_insertmovesrotate(start, (int)(500), 18);
+    print(mainout, start);
+    print(mainout, finish);
+    
+    auto neigh1 = neighbourhood_greedy_search_insertmovesrotate(start, (int)(5000), 18);
     auto neigh2 = neighbourhood_greedy_search_insertmovesrotate(finish, (int)(500), 18);
     
+    for(auto node: neigh1.second){
+        print(mainout, node.first);
+    }
+
     set<int> st1, st2;
     for(auto i: neigh1.first){
         for(int j = 0; j < f.size(); j++)
@@ -496,28 +534,20 @@ pair<bool, deque<int>> guided_exploration(node start, node finish, int depth){
     
     cout << "Finished traversing pairs " << (int)(candidates.size()) << endl;
     
-    ofstream fout("/Users/kseniia/Desktop/programming/Projects/ACC/results/qgramdistance.txt");
-    for(auto i: candidates)
-        fout << fixed << setprecision(10) << i.first << ' ';
-    fout << endl;
-    fout.close();
+//    ofstream fout("/Users/kseniia/Desktop/programming/Projects/ACC/results/qgramdistance.txt");
+//    for(auto i: candidates)
+//        fout << fixed << setprecision(10) << i.first << ' ';
+//    fout << endl;
+//    fout.close();
     
-    exit(0);
     sort(candidates.rbegin(), candidates.rend());
     
     ll ind = -1;
     
-    for(auto i: candidates){
-        ind++;
-        if(i.second.first == f[3] && i.second.second == f[7]){
-            cout << "Found match of 3 & 7, " << ind << ' ' << fixed << setprecision(10) << i.first << endl;
-        }
-    }
-    
     // we can now try to select 10-20 most similar pairs
     // and run guided_exploration for them
     
-    for(int i = 0; i < min((int)(candidates.size()), 10); i++){
+    for(int i = 0; i < min((int)(candidates.size()), 100); i++){
         cout << fixed << setprecision(10) << candidates[i].first << endl;
         print(cout, candidates[i].second.first);
         print(cout, candidates[i].second.second);
@@ -525,7 +555,6 @@ pair<bool, deque<int>> guided_exploration(node start, node finish, int depth){
         
         auto result = guided_exploration(candidates[i].second.first, candidates[i].second.second, depth + 1);
         cout << "_____finished GE " << depth << endl;
-
         
         if(result.first == true){
             // found a path!

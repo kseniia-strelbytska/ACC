@@ -38,6 +38,8 @@ void random_shuffle(vector<node> &presentations){
 
 void evaluate(GreedyFn greedy_search_variant, vector<node> presentations, string output_presentation, string output_path, int max_nodes, int max_relator_length){
     
+    cout << "Started evaluation" << endl;
+    
 //    random_shuffle(presentations);
     
     vector<node> s_presentations;
@@ -50,9 +52,11 @@ void evaluate(GreedyFn greedy_search_variant, vector<node> presentations, string
     
     bool const test_large = false;
     
+    ofstream out_presentation(output_presentation);
+    ofstream out_path(output_path);
+    
     for(auto i: presentations){
         ind++;
-//            print(cout, i);
         
         auto result = greedy_search_variant(i, max_nodes, max_relator_length);
         
@@ -84,19 +88,35 @@ void evaluate(GreedyFn greedy_search_variant, vector<node> presentations, string
             }
         }
         
+        if(!s_presentations.empty()){
+            for(auto i: s_presentations)
+                print(out_presentation, i);
+            
+            cout << "Path" << endl;
+            for(auto i: s_paths){
+                out_path << (int)(i.size()) << endl;
+                for(auto move: i){
+                    for(auto j: move)
+                        out_path << j << ' ';
+                    out_path << endl;
+                }
+            }
+            cout << "Path" << endl;
+            
+            s_presentations.clear();
+            s_paths.clear();
+        }
         
         cout << "Solved: " << solved << "/" << ind << endl;
         
-        if(ind >= 533)
+        if(ind == 533)
             break;
     }
     cout << "Result: " << solved_small << "/400 " << solved_large << "/17" << endl;
     
-    ofstream out_presentation(output_presentation);
     for(auto i: s_presentations)
         print(out_presentation, i);
-        
-    ofstream out_path(output_path);
+    
     for(auto i: s_paths){
         out_path << (int)(i.size()) << endl;
         for(auto move: i){

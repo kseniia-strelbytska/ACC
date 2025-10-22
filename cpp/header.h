@@ -146,7 +146,7 @@ void write_paths(string presentation_path, string out_file);
 
 void write_multi_paths(string presentation_path, string dir_path);
 
-void analyse(vector<node> presentations, string sol_path);
+void global_writing(vector<node> presentations, string sol_path);
 
 // ----------similarity.cpp----------
 
@@ -177,7 +177,7 @@ node presentation(string line);
 
 vector<vector<node>> extract_paths(string path);
 
-void analysis(vector<vector<node>> all_paths, string dir_path);
+void write_pairwise_metric_results(vector<vector<node>> all_paths, string dir_path, string filename);
 
 // ----------LCS.cpp----------
 // https://www.geeksforgeeks.org/dsa/suffix-tree-application-5-longest-common-substring-2/

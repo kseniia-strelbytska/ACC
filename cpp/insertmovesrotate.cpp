@@ -122,8 +122,13 @@ node insertmoverotate(node a, int idx, int tag, int rotation){
     else
         res.first = backup.first;
     
+    res.first = get_smallest_rotation(res.first);
+    res.second = get_smallest_rotation(res.second);
+    
     return res;
 }
+
+// index of insertion, tag, # of rotations
 
 // different variant: assume that a is already rotated as needed, and the tag has been applied
 // All we need to do is implement fast insertion evaluation and run it for every insertion index
@@ -294,12 +299,18 @@ vector<pair<int, vector<int>>> rank_insertmovesrotate(node a){
     return ans;
 }
 
+const vector<node> all_trivial = {{{1}, {2}}, {{-1}, {2}}, {{1}, {-2}}, {{-1}, {-2}}, {{2}, {1}}, {{-2}, {1}}, {{2}, {-1}}, {{-2}, {-1}}};
+
 GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_relator_length){
     priority_queue<node_info, vector<node_info>, greater<node_info>> q;
     
     // 'open set'; stores {{k=presentation length, l=length from the start}, node}
-//    q.push({{(int)(start.first.size()) + (int)(start.second.size()), 0}, start});
-    q.push({{-qgram_distance(start, {{1}, {2}}), 0}, start});
+    q.push({{(int)(start.first.size()) + (int)(start.second.size()), 0}, start});
+    
+//    int mn = (int)(1e9);
+//    for(auto target: all_trivial)
+//        mn = min(mn, get_distance(start, target));
+//    q.push({{mn, 0}, start});
     
     // stores best pair (k, l) for each node
     map<node, pair<int, int>> mp;
@@ -325,12 +336,10 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
     
     while(!q.empty()){
         tstep++;
-
+        
         auto v = q.top();
         q.pop();
-        
-//        print(cout, v.second);
-        
+                
 //        auto *f = freopen("./output_cpp.txt", "a", stdout);
 //        print(v.second);
 //        fclose(f);
@@ -352,9 +361,14 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
         for(int move = 0; move < (int)all_moves.size() && neighbours_found < 20; move++){
             auto to = insertmoverotate(v.second, all_moves[move].second[0], all_moves[move].second[1], all_moves[move].second[2]); // node, index, tag
             
-//            pair<int, int> cost = {(int)(to.first.size()) + (int)(to.second.size()), v.first.second + 1};
-            pair<int, int> cost = {-qgram_distance(to, {{1}, {2}}), v.first.second + 1};
+            pair<int, int> cost = {(int)(to.first.size()) + (int)(to.second.size()), v.first.second + 1};
             
+//            mn = (int)(1e9);
+//            for(auto target: all_trivial)
+//                mn = min(mn, get_distance(to, target));
+//            
+//            pair<int, int> cost = {mn, v.first.second + 1};
+           
             // if {to} hasn't been expanded and {cost} is better than current best for {to},
             // then push to the open set
             
@@ -366,7 +380,6 @@ GreedyResult greedy_search_insertmovesrotate(node start, int max_nodes, int max_
                 
                 break;
             }
-            
             if((int)(to.first.size()) < max_relator_length && (int)(to.second.size()) < max_relator_length && !used.count(to)){
                 neighbours_found += 1;
                 

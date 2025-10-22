@@ -319,26 +319,36 @@ def roc_curve(all_pairs, ndistance, metric_idx, metric_name):
         
         precision.append(neighbouring_retrieved / (idx + 1))
         recall.append(neighbouring_retrieved / total_neighbouring)
-        
+    
     fig, ax = plt.subplots()
-    ax.set(ylim=(0, 1))
+    ax.set(ylim=(0, 1.1))
     ax.plot(recall, precision)
     fig.savefig(f'/Users/kseniia/Desktop/programming/Projects/ACC/results/roc_curve_' + metric_name + f'_nd={ndistance}.png')
     
     fig.clf()
     
 def edit_lcs_correlation(all_pairs):
-    x, y = [], []
+    data = [[], []]
     
     for pair in all_pairs:
-        x.append(pair[2]) # edit
-        y.append(pair[3]) # lcs
+        data[0].append(pair[2]) # edit
+        data[1].append(pair[3]) # lcs
     
     print('S and P correlations vary from -1 to 1. Higher absolute value means higher correlation')
-    correlation = spearmanr(x, y)
+    correlation = spearmanr(data[0], data[1])
     print(f'S Correlation between edit distance and lcs is {correlation[0]}')
-    correlation = pearsonr(x, y)
+    correlation = pearsonr(data[0], data[1])
     print(f'P Correlation between edit distance and lcs is {correlation[0]}')
+    
+    data.sort()
+    
+    plt.scatter(data[0], data[1]) 
+    plt.xlabel('edit distance')
+    plt.ylabel('lcs distance')
+    
+    fig = plt.gcf()
+    fig.savefig(f'/Users/kseniia/Desktop/programming/Projects/ACC/results/plot_lcs_vs_edit.png')
+    plt.close(fig)
     
 def show_averages(all_pairs, dmax):
     distances = {}
@@ -380,13 +390,17 @@ def show_averages(all_pairs, dmax):
     fig.savefig(f'/Users/kseniia/Desktop/programming/Projects/ACC/results/avg_metric_change_vs_distance.png')
 
 if __name__ == "__main__":
-    all_pairs = process_all_pairs('/Users/kseniia/Desktop/programming/Projects/ACC/results/all_pairs.txt')
+    all_pairs = process_all_pairs('/Users/kseniia/Desktop/programming/Projects/ACC/results/pairwise_metrics.txt')
+    
+#    roc_curve(all_pairs, 4, 1, 'qgram')
+#    
+#    exit(0)
     
     show_averages(all_pairs, 20)
     
-#    names = ['qgram', 'edit', 'lcs']
-#    
-#    for idx in range(len(names)):
-#        roc_curve(all_pairs, 4, idx + 1, names[idx])
-#        
-#    edit_lcs_correlation(all_pairs)
+    names = ['qgram', 'edit', 'lcs']
+    
+    for idx in range(len(names)):
+        roc_curve(all_pairs, 4, idx + 1, names[idx])
+        
+    edit_lcs_correlation(all_pairs)

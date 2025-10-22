@@ -285,3 +285,16 @@ Correlation between ground truth distance and lcs is 0.40168788300328495
 Correlation between edit distance and lcs is 0.6864310295815326
 
 There is actually a lot of skip moves between distant nodes (if we look at the insert-rotate trivialisation paths). 
+
+17/10/25
+Edit distance instead of min presentation length as a greedy heuristic performed poorly (Solved: 347/424). If we remove smallest rotation from edit distance, it performs exactly as the greedy search. Because we initially got smallest rotation, it was possible that some cancellations occur in the relators, and that changed their length (eg 18 -> 14 because 2 cancellations happened in each of the relators). Edit distance performed badly because it used the smallest cyclic shifts of relators: sometimes end terms cancelled out making edit distance up to 4-10 smaller than presentation length
+
+If we keep all relators being shifted to their smallest rotations, all 533 MS cases are solved in just 50s! (Original time was 30m maybe?) Because we don't explore cases many times! 
+
+Re-generated all statistics (and changed some function names): trivialisation paths are much shorter (longest is ~70, not 150 like before) and ROC curves don't have extreme lows at the start. Edit / LCS correlation to the ground truth is still weak. 
+
+21/10/25
+Search rotation invariant — average path length decreased form 17 to 12, and skip connections are gone. 
+Correlation between ground truth and LCS increased from 0.38 to 0.48 (making it the strongest out of the three)
+
+Qgram with padding performs poorly (correlation strength drops, ROC curve looks spiked)

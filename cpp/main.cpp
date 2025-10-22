@@ -2,7 +2,7 @@
 
 using namespace chrono;
 
-void timed_evaluation(char **argv, GreedyFn greedy_search_variant){
+void timed_evaluation(char **argv, GreedyFn greedy_search_variant, string presentations_path, string moves_path){
     // get current system time
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
     
@@ -11,10 +11,8 @@ void timed_evaluation(char **argv, GreedyFn greedy_search_variant){
     
     auto presentations = load_presentations_MS(dir_path + "/all_presentations.txt");
 //    auto presentations = load_presentations(dir_path + "/cpp/datasets/dataset_len7.txt");
-    
-    string name = "rotate_MS";
-    
-    evaluate(greedy_search_variant, presentations, dir_path + "/results/A" + name, dir_path + "/results/A" + name, (ll)(1e6), 18);
+        
+    evaluate(greedy_search_variant, presentations, dir_path + "/results" + presentations_path, dir_path + "/results" + moves_path, (ll)(1e6), 18);
     
 //    // get current system time
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
@@ -24,8 +22,87 @@ void timed_evaluation(char **argv, GreedyFn greedy_search_variant){
     cout << time_span.count() << endl;
 }
 
+void get_average_len(string file_path, bool new_format){
+    ifstream in(file_path.c_str());
+    
+    int n;
+    vector<int> lens;
+    
+    while(in >> n){
+        lens.push_back(n);
+        
+        string a;
+        getline(in, a);
+        
+        n += (!new_format);
+        
+        while(n--){
+            getline(in, a);
+            
+//            cout << a << endl;
+        }
+    }
+    
+    int sum = 0;
+    for(auto i: lens)
+        sum += i;
+    
+    sort(lens.begin(), lens.end());
+    
+    cout << "Average path length is " << fixed << setprecision(10) << (long double)(sum) / (long double)(lens.size()) << endl;
+    
+    cout << "Median path length is " << lens[lens.size() / 2] << endl;
+}
+
 int main(int argc, char **argv){
-    timed_evaluation(argv, greedy_search_insertmovesrotate);
+    string dir_path = argv[1];
+    
+    write_pairwise_metric_results(extract_paths(dir_path + "/results/smallest_rotation_solved_moves_explicit_paths.txt"), dir_path, "/pairwise_metrics.txt");
+//
+//    string file_path_new = dir_path + "/results/smallest_rotation_solved_moves.txt";
+//    string file_path_old = dir_path + "/results/pre-smallest_rotation-reserve/533_explicit_solved_paths_insert_rotate.txt";
+//
+//    
+//    get_average_len(file_path_new, true);
+//    get_average_len(file_path_old, false);
+//    
+    return 0;
+    
+
+    node p1 = {{-2, -2, -2, -1, 2, 2, 1}, {-2, -1, 2, 2, 2, 1, 2, -1}};
+    node p2 = {{1}, {-2}};
+    
+    auto result = guided_exploration(p1, p2, 1);
+    
+    cout << "RESULT " << result.first << endl;
+    
+    return 0;
+    
+    // 2 -1 2 -1 2 1 -2 1 -2 -2 -2 | -1 2 1 -2 -1 2 2
+    
+//    node source = {{2, -1, 2, -1, 2, 1, -2, 1, -2, -2, -2}, {-1, 2, 1, -2, -1, 2, 2}};
+//    
+//    auto s = get_distance(source, {{1}, {2}});
+//    
+//    cout << s << endl;
+//    
+//    return 0;
+    
+//
+//    timed_evaluation(argv, greedy_search_insertmovesrotate, "/large_MS_presentations.txt", "/large_MS_moves.txt");
+
+//    timed_evaluation(argv, greedy_search_insertmovesrotate, "/smallest_rotation_solved_presentations.txt", "/smallest_rotation_solved_moves.txt");
+//    global_writing(load_presentations_MS(dir_path + "/all_presentations.txt"), dir_path + "/results/smallest_rotation_solved_moves.txt");
+//    write_multi_paths(dir_path + "/all_presentations.txt", dir_path);
+//    write_pairwise_metric_results(extract_paths(dir_path + "/results/smallest_rotation_solved_moves_explicit_paths.txt"), dir_path, "/pairwise_metrics.txt");
+    
+    return 0;
+    
+//    global_writing(load_presentations_MS(dir_path + "/all_presentations.txt"), dir_path + "/results/smallest_rotation_solved_moves.txt");
+    
+//    write_multi_paths(dir_path + "/all_presentations.txt", dir_path);
+    
+//    analysis(extract_paths(dir_path + "/results/smallest_rotation_solved_moves_explicit_paths.txt"), dir_path);
 
     return 0;
 //    node p4 = {{-2, -2, 1, 2, 2, 2, -1}, {2, 2, 2, 1, 1, 2, 2, 2, 2, 1}};
@@ -41,12 +118,11 @@ int main(int argc, char **argv){
      
      */
 
-    string dir_path = argv[1];
+    
     compare_by_order(extract_paths(dir_path + "/results/533_explicit_solved_paths_insert_rotate.txt"));
 
     return 0;
 
-    analysis(extract_paths(dir_path + "/results/533_explicit_solved_paths_insert_rotate.txt"), dir_path);
     
     return 0;
 

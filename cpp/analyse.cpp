@@ -53,10 +53,12 @@ void write_paths(string presentation_path, string out_file){
     }
 }
 
+// writes paths for all presentations into separate files into results/files directory
+
 void write_multi_paths(string presentation_path, string dir_path){
     vector<node> presentations = load_presentations_MS(presentation_path);
     
-    cout << "Starting" << endl;
+    cout << "Starting writing multi paths" << endl;
     
     ll ind = 0, solved = 0;
     
@@ -92,7 +94,8 @@ void write_multi_paths(string presentation_path, string dir_path){
     }
 }
 
-void analyse(vector<node> presentations, string sol_path){
+// used for many diffent outputs, mainly for explicit paths generation from presentations and path with insert-rotate moves instructions
+void global_writing(vector<node> presentations, string sol_path){
     ifstream stream(sol_path.c_str());
     
     map<node, int> nodes;
@@ -110,13 +113,16 @@ void analyse(vector<node> presentations, string sol_path){
         while(stream >> n){
             ind++;
             
+            if(ind > 533)
+                break;
+            
             lens.push_back(n);
             
             vector<vector<int>> moves;
             for(int i = 0; i < n; i++){
                 int a, b, c;
                 stream >> a >> b >> c;
-                
+                                
                 moves.push_back({a, b, c});
             }
             
@@ -195,7 +201,7 @@ void analyse(vector<node> presentations, string sol_path){
 //        
 //        out3.close();
         
-        ofstream out4("/Users/kseniia/Desktop/programming/Projects/ACC/results/solved_paths_rotate_MS_explicit_paths_plus_moves_smallestrotation.txt");
+        ofstream out4("/Users/kseniia/Desktop/programming/Projects/ACC/results/smallest_rotation_solved_moves_explicit_paths.txt");
         
         int path_ind = -1;
         for(auto i: paths){
@@ -207,11 +213,11 @@ void analyse(vector<node> presentations, string sol_path){
             for(auto j: i){
                 move_ind++;
                 
-                if(move_ind >= 0){
-                    for(auto p: all_moves[path_ind][move_ind])
-                        out4 << p << ' ';
-                    out4 << endl;
-                }
+//                if(move_ind >= 0){
+//                    for(auto p: all_moves[path_ind][move_ind])
+//                        out4 << p << ' ';
+//                    out4 << endl;
+//                }
                 
                 j.first = get_smallest_rotation(j.first);
                 j.second = get_smallest_rotation(j.second);
